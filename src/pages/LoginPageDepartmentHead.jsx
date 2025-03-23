@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 // Department head/admin related background image
 const backgroundImage = "https://images.unsplash.com/photo-1606761568499-6d2451b23c66?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80";
 
-export default function LoginPageDepartmentHead() {
+export default function LoginPageDepartmentHead({ setActivePage }) {
   // Animation and form states
   const [isLoaded, setIsLoaded] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -12,6 +12,8 @@ export default function LoginPageDepartmentHead() {
     departmentId: '',
     password: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
   
   useEffect(() => {
     setTimeout(() => {
@@ -25,12 +27,36 @@ export default function LoginPageDepartmentHead() {
       ...prev,
       [id]: value
     }));
+    
+    // Clear any error messages when user types
+    if (error) setError('');
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Login attempt with:", formData);
-    // Add actual login logic here
+    
+    // Basic validation
+    if (!formData.departmentId.trim()) {
+      setError("Please enter your department ID");
+      return;
+    }
+    
+    if (!formData.password.trim()) {
+      setError("Please enter your password");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    // Simulate authentication (replace with actual API call)
+    setTimeout(() => {
+      // For demo purposes - always successful login
+      // In a real app, you would verify credentials with your backend
+      setIsSubmitting(false);
+      
+      // Navigate to department head dashboard
+      setActivePage('departmentDashboard');
+    }, 800);
   };
 
   return (
@@ -123,7 +149,7 @@ export default function LoginPageDepartmentHead() {
             <div className="mb-6">
               <div className="flex justify-between mb-2">
                 <label htmlFor="password" className="block text-gray-700">Password</label>
-                <a href="/reset-password" className="text-blue-600 hover:text-blue-800 text-sm">Forgot password?</a>
+                <a href="#" className="text-blue-600 hover:text-blue-800 text-sm">Forgot password?</a>
               </div>
               <div className="relative">
                 <input
@@ -152,6 +178,13 @@ export default function LoginPageDepartmentHead() {
                   </svg>
                 </div>
               </div>
+              
+              {/* Error message */}
+              {error && (
+                <p className="mt-2 text-sm text-red-600 animate-pulse">
+                  {error}
+                </p>
+              )}
             </div>
             
             <div className="flex items-center mb-6">
@@ -170,21 +203,31 @@ export default function LoginPageDepartmentHead() {
             <button
               type="submit"
               className="w-full flex items-center justify-center py-3 px-4 bg-gray-800 text-white font-medium rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors group"
+              disabled={isSubmitting}
             >
-              Log In
-              <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-              </svg>
+              {isSubmitting ? (
+                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : (
+                <>
+                  Log In
+                  <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                  </svg>
+                </>
+              )}
             </button>
           </form>
           
           {/* Footer Links */}
           <div className="text-center mt-8">
             <p className="text-sm text-gray-600">
-              Don't have an account yet? <a href="/register" className="text-blue-600 hover:text-blue-800 font-medium">Register Now</a>
+              Don't have an account yet? <a href="#" className="text-blue-600 hover:text-blue-800 font-medium">Register Now</a>
             </p>
             <p className="text-sm text-gray-600 mt-2">
-              Need help? <a href="/contact" className="text-blue-600 hover:text-blue-800">Contact administrator</a>
+              Need help? <a href="#" className="text-blue-600 hover:text-blue-800">Contact administrator</a>
             </p>
           </div>
         </div>

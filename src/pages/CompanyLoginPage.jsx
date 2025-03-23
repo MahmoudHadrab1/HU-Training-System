@@ -69,7 +69,7 @@ export default function CompanyLoginPage({ setActivePage }) {
     
     // Simulate authentication (replace with actual API call)
     setTimeout(() => {
-      // For demo purposes - showing error for unsuccessful login
+      // For demo purposes - simplified authentication
       // In a real app, you would check credentials with your backend
       if (formData.companyId === "12345" && formData.password === "password") {
         // Successful login - redirect to company dashboard

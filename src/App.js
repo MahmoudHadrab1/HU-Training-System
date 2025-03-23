@@ -1,4 +1,4 @@
-// App.js - Updated code
+// App.js - Updated with Department Head Dashboard routing
 import React, { useState, useRef } from 'react';
 import Header from './components/common/Header';
 import BenefitsSection from './components/home/BenefitsSection';
@@ -8,13 +8,14 @@ import HowItWorks from './components/how-it-works/HowItWorks';
 import AboutPage from './pages/AboutPage.jsx';
 import CompanyPage from './pages/CompanyPage.jsx';
 import DepartmentHeadPage from './pages/DepartmentHeadPage.jsx';
-// We're removing HomePage import since it's not used directly
 import LoginPageStudent from './pages/LoginPageStudent.jsx';
 import StudentPage from './pages/StudentPage.jsx';
 import CompanyRegistration from './pages/CompanyRegistration.jsx';
 import CompanyProfileCreation from './pages/CompanyProfileCreation.jsx';
 import CompanyLoginPage from './pages/CompanyLoginPage.jsx';
 import LoginPageDepartmentHead from './pages/LoginPageDepartmentHead.jsx';
+import DepartmentHeadDashboard from './components/department-dashborad.jsx/DepartmentHeadDashboard.jsx';
+//import StudentDetailView from '../components/StudentDetailView';
 
 function App() {
   const [activeTab, setActiveTab] = useState('company');
@@ -70,13 +71,16 @@ function App() {
         return <LoginPageStudent />;
       case 'studentLogin':
         window.scrollTo(0, 0);
-        return <LoginPageStudent />;
+        return <LoginPageStudent setActivePage={handlePageChange} />;
       case 'companyLogin':
         window.scrollTo(0, 0);
-        return <CompanyLoginPage />;
+        return <CompanyLoginPage setActivePage={handlePageChange} />;
       case 'departmentLogin':
         window.scrollTo(0, 0);
-        return <LoginPageDepartmentHead />;
+        return <LoginPageDepartmentHead setActivePage={handlePageChange} />;
+      case 'departmentDashboard':
+        window.scrollTo(0, 0);
+        return <DepartmentHeadDashboard setActivePage={handlePageChange} />;
       case 'register':
         window.scrollTo(0, 0);
         return <CompanyRegistration setActivePage={handlePageChange} />;
@@ -107,11 +111,13 @@ function App() {
 
   return (
     <div className="min-h-screen font-sans text-gray-800">
-      <Header 
-        setActivePage={handlePageChange} 
-        setActiveTab={setActiveTab} 
-        activeTab={activeTab} 
-      />
+      {activePage === 'departmentDashboard' ? null : (
+        <Header 
+          setActivePage={handlePageChange} 
+          setActiveTab={setActiveTab} 
+          activeTab={activeTab} 
+        />
+      )}
       {renderPage()}
     </div>
   );
