@@ -1,7 +1,7 @@
 // CompanyLoginPage.jsx
 import React, { useState, useEffect } from "react";
 // Import company login image - you'll need to add this to your assets folder
-import companyLoginImg from "../assets/images/company_login_img.jpg";
+import companyLoginImg from "../../../assets/images/company_login_img.jpg";
 
 export default function CompanyLoginPage({ setActivePage }) {
   // State for animation, form fields, and error handling

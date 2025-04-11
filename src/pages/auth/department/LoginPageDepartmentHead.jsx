@@ -149,7 +149,6 @@ export default function LoginPageDepartmentHead({ setActivePage }) {
             <div className="mb-6">
               <div className="flex justify-between mb-2">
                 <label htmlFor="password" className="block text-gray-700">Password</label>
-                <a href="#" className="text-blue-600 hover:text-blue-800 text-sm">Forgot password?</a>
               </div>
               <div className="relative">
                 <input
@@ -221,15 +220,7 @@ export default function LoginPageDepartmentHead({ setActivePage }) {
             </button>
           </form>
           
-          {/* Footer Links */}
-          <div className="text-center mt-8">
-            <p className="text-sm text-gray-600">
-              Don't have an account yet? <a href="#" className="text-blue-600 hover:text-blue-800 font-medium">Register Now</a>
-            </p>
-            <p className="text-sm text-gray-600 mt-2">
-              Need help? <a href="#" className="text-blue-600 hover:text-blue-800">Contact administrator</a>
-            </p>
-          </div>
+          
         </div>
       </div>
     </div>

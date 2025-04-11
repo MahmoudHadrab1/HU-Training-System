@@ -1,11 +1,14 @@
 // CompanyRegistration.jsx
 import React, { useState, useEffect } from 'react';
+import axios from 'axios'; // Make sure to install axios
 
 const CompanyRegistration = ({ setActivePage }) => {
   const [idNumber, setIdNumber] = useState('');
   const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('There is something error, Please try again');
   const [showVerifying, setShowVerifying] = useState(false);
   const [animateIn, setAnimateIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
   useEffect(() => {
     // Trigger entrance animation after component mounts
@@ -17,24 +20,82 @@ const CompanyRegistration = ({ setActivePage }) => {
     setShowError(false);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Basic validation
     if (!idNumber.trim()) {
+      setErrorMessage('Please enter your ID number');
+      setShowError(true);
+      return;
+    }
+
+    // Validate ID format (9 digits)
+    if (!/^\d{9}$/.test(idNumber)) {
+      setErrorMessage('ID must be 9 digits');
       setShowError(true);
       return;
     }
 
     // Show verification modal
     setShowVerifying(true);
+    setIsLoading(true);
     
-    // Simulate verification process completing after 2 seconds
-    setTimeout(() => {
-      setShowVerifying(false);
-      // Navigate to profile creation after successful verification
-      setActivePage('profileCreation');
-    }, 2000);
+    try {
+      // First step: Verify if the company ID exists in the system
+      const verificationResponse = await axios.post('/api/verify-company', { nationalId: idNumber });
+      
+      // If company ID exists, check if the company is trustworthy
+      if (verificationResponse.data.verified) {
+        try {
+          // Second step: Check company trustworthiness in the fake system
+          const trustworthinessResponse = await axios.post('/api/check-trustworthiness', { 
+            nationalId: idNumber 
+          });
+          
+          if (trustworthinessResponse.data.isTrustworthy) {
+            // Company is trustworthy, proceed to account creation
+            setTimeout(() => {
+              setShowVerifying(false);
+              setIsLoading(false);
+              setActivePage('profileCreation');
+            }, 1000);
+          } else {
+            // Company exists but is not trustworthy
+            setTimeout(() => {
+              setShowVerifying(false);
+              setIsLoading(false);
+              setErrorMessage('Company does not meet our trustworthiness criteria');
+              setShowError(true);
+            }, 1000);
+          }
+        } catch (trustErr) {
+          // Handle trustworthiness check errors
+          setTimeout(() => {
+            setShowVerifying(false);
+            setIsLoading(false);
+            setErrorMessage(trustErr.response?.data?.message || 'Trustworthiness verification failed');
+            setShowError(true);
+          }, 1000);
+        }
+      } else {
+        // Company ID does not exist in the system
+        setTimeout(() => {
+          setShowVerifying(false);
+          setIsLoading(false);
+          setErrorMessage('Company not verified by the Ministry of Industry and Trade');
+          setShowError(true);
+        }, 1000);
+      }
+    } catch (err) {
+      // Handle initial verification API errors
+      setTimeout(() => {
+        setShowVerifying(false);
+        setIsLoading(false);
+        setErrorMessage(err.response?.data?.message || 'Verification failed');
+        setShowError(true);
+      }, 1000);
+    }
   };
 
   return (
@@ -63,10 +124,11 @@ const CompanyRegistration = ({ setActivePage }) => {
                 id="company-id"
                 value={idNumber}
                 onChange={handleIdChange}
-                placeholder="Your ID"
+                placeholder="Enter your 9-digit National ID"
                 className={`w-full bg-gray-200 rounded-md py-3 px-4 pr-10 focus:outline-none focus:ring-2 transition-all ${
                   showError ? 'focus:ring-red-500 border-red-500' : 'focus:ring-blue-500'
                 }`}
+                maxLength="9"
               />
               <svg 
                 className="absolute right-3 top-3 h-6 w-6 text-gray-500" 
@@ -79,11 +141,12 @@ const CompanyRegistration = ({ setActivePage }) => {
             </div>
             
             {showError && (
-              <p className="text-red-600 text-center animate-pulse">There is something error, Please try again</p>
+              <p className="text-red-600 text-center animate-pulse">{errorMessage}</p>
             )}
             
             <button
               type="submit"
+              disabled={isLoading}
               className={`w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-4 rounded-md transition duration-300 transform hover:translate-y-[-2px] hover:shadow-lg ${animateIn ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
               style={{ transitionDelay: '900ms' }}
             >
@@ -99,7 +162,7 @@ const CompanyRegistration = ({ setActivePage }) => {
               <div className="flex justify-between items-start">
                 <div className="w-full text-center">
                   <h3 className="text-xl font-semibold mb-4">Thank you for submitting your request</h3>
-                  <p className="mb-4">Please wait a moment while we verify the information provided</p>
+                  <p className="mb-4">Please wait a moment while we verify your company information and check trustworthiness</p>
                   <div className="flex justify-center items-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800"></div>
                   </div>

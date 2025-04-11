@@ -65,7 +65,7 @@ const StudentSection = ({ setActivePage }) => {
   return (
     <section 
       ref={sectionRef} 
-      className="student-section bg-gray-50 py-16 px-8 min-h-[80vh] opacity-0 transition-opacity duration-1000 ease-in-out flex items-start pt-20"
+      className="student-section  bg-gray-100 py-16 px-8 min-h-[80vh] opacity-0 transition-opacity duration-1000 ease-in-out flex items-start pt-20"
     >
       <div className="container mx-auto max-w-6xl">
         <div className="flex flex-col md:flex-row-reverse items-center gap-12">

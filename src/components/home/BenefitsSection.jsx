@@ -107,7 +107,9 @@ const BenefitsSection = () => {
     <div 
       ref={sectionRef}
       className="benefits-section bg-gray-100 py-16 px-6 text-center opacity-0 transition-all duration-1000 ease-out"
+     
     >
+      
       {/* Header Section with enhanced animation */}
       <div className="heading-container max-w-3xl mx-auto mb-16 transform opacity-0 translate-y-20 transition-all duration-1000 ease-out">
         <h2 className="text-3xl md:text-4xl font-bold text-gray-800 leading-tight">

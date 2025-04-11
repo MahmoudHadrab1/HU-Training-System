@@ -154,11 +154,7 @@ const AboutPage = () => {
                   </div>
                   
                   {/* Decorative elements */}
-                  <div className="absolute top-4 right-4">
-                    <div className="w-16 h-16 bg-red-600/90 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-                      HU
-                    </div>
-                  </div>
+                  
                 </div>
               </div>
             </div>
@@ -166,12 +162,12 @@ const AboutPage = () => {
           
           {/* Key Features Section */}
           <div className="mb-20">
-            <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
-              <span className="relative inline-block">
-                Key Features
-                <div className="absolute bottom-0 left-1/4 right-1/4 h-1 bg-red-600"></div>
-              </span>
-            </h2>
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-16">
+            <span className="relative inline-block pb-4">
+             Key Features
+          <div className="absolute bottom-0 left-0 right-0 mx-auto h-1 bg-red-600" style={{ width: '120px', marginTop: '10px' }}></div>
+            </span>
+          </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {[
@@ -229,48 +225,15 @@ const AboutPage = () => {
           </div>
 
           {/* Stats Section with Premium Design */}
-          <div className="mb-20">
-            <div className="relative">
-              {/* Background decoration */}
-              <div className="absolute inset-0 flex items-center">
-                <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-              </div>
-              
-              <div className="relative flex justify-center">
-                <div className="bg-white px-6 py-3 text-gray-600 text-sm font-medium rounded-full shadow-sm">
-                  Our Impact
-                </div>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mt-12">
-              {[
-                { number: "1000+", label: "Students Trained", color: "bg-red-600" },
-                { number: "100+", label: "Company Partners", color: "bg-blue-600" },
-                { number: "25+", label: "University Departments", color: "bg-green-600" },
-                { number: "95%", label: "Success Rate", color: "bg-purple-600" }
-              ].map((stat, index) => (
-                <div 
-                  key={index}
-                  ref={el => statsRefs.current[index] = el}
-                  className="relative flex flex-col items-center justify-center bg-white rounded-lg py-6 opacity-0 transform translate-y-8 transition-all duration-700"
-                  style={{ transitionDelay: `${800 + (index * 100)}ms` }}
-                >
-                  <div className={`absolute top-0 left-0 right-0 h-1 ${stat.color} rounded-t-lg`}></div>
-                  <h3 className="text-4xl font-bold text-gray-800 mb-2">{stat.number}</h3>
-                  <p className="text-gray-600 font-medium">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          
 
           {/* Before & After Section with Premium Design */}
           <div 
             ref={beforeAfterRef}
             className="mb-20 opacity-0 translate-y-12 transform transition-all duration-1000 delay-1000"
           >
-            <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
-              <span className="relative inline-block">
+            <h2 className="text-3xl font-bold text-center text-gray-800 mb-16">
+              <span className="relative inline-block pb-4">
                 Transformation Journey
                 <div className="absolute bottom-0 left-1/4 right-1/4 h-1 bg-red-600"></div>
               </span>

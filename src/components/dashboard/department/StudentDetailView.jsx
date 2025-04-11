@@ -5,108 +5,189 @@ const StudentDetailView = ({ studentId, onBack }) => {
   const [student, setStudent] = useState(null);
   const [activeTab, setActiveTab] = useState('info');
   
-  // Mock data for student details
+  // Complete mock data for ALL students
   const mockStudentData = {
-    id: '2139754201',
-    name: 'Ahmed Ali',
-    state: 'In Training',
-    department: 'Computer Science',
-    year: '3rd Year',
-    gpa: '3.8',
-    email: 'ahmed.ali@students.hu.edu.jo',
-    phone: '+962 77 1234567',
-    company: {
-      name: 'Tech Solutions',
-      id: 'CS123',
-      trainingTitle: 'Web Development',
-      location: 'Amman, Jordan',
-      duration: '8 Weeks',
-      startDate: '01/06/2025',
-      endDate: '31/07/2025'
+    '2139754201': {
+      id: '2139754201',
+      name: 'Ahmed Ali',
+      state: 'In Training',
+      department: 'Computer Science',
+      year: '3rd Year',
+      gpa: '3.8',
+      email: 'ahmed.ali@students.hu.edu.jo',
+      phone: '+962 77 1234567',
+      company: {
+        name: 'Tech Solutions',
+        id: 'CS123',
+        trainingTitle: 'Web Development',
+        location: 'Amman, Jordan',
+        duration: '8 Weeks',
+        startDate: '01/06/2025',
+        endDate: '31/07/2025'
+      },
+      activities: [],
+      reports: [],
+      documents: {
+        trainingFiles: false,
+        approvalFiles: false,
+        officialDocument: false,
+        finalReport: false
+      }
     },
-    activities: [],
-    reports: [],
-    documents: {
-      trainingFiles: false,
-      approvalFiles: false,
-      officialDocument: false,
-      finalReport: false
-    }
-  };
-  
-  const mockStudentData2 = {
-    id: '2139754204',
-    name: 'Layla Mahmoud',
-    state: 'Waiting For Approval',
-    department: 'Computer Science',
-    year: '3rd Year',
-    gpa: '3.8',
-    email: 'layla.m@students.hu.edu.jo',
-    phone: '+962 77 1234567',
-    company: {
-      name: 'Mobile Apps Inc',
-      id: 'MA101',
-      trainingTitle: 'Mobile Development',
-      location: 'Amman, Jordan',
-      duration: '8 Weeks',
-      startDate: '01/06/2025',
-      endDate: '31/07/2025'
+    '2139754202': {
+      id: '2139754202',
+      name: 'Sarah Khan',
+      state: 'Not Started',
+      department: 'Information Technology',
+      year: '2nd Year',
+      gpa: '3.5',
+      email: 'sarah.khan@students.hu.edu.jo',
+      phone: '+962 78 9876543',
+      company: {
+        name: 'DataViz Corp',
+        id: 'DV456',
+        trainingTitle: 'Data Analysis',
+        location: 'Amman, Jordan',
+        duration: '6 Weeks',
+        startDate: 'Pending',
+        endDate: 'Pending'
+      },
+      activities: [],
+      reports: [],
+      documents: {
+        trainingFiles: false,
+        approvalFiles: false,
+        officialDocument: false,
+        finalReport: false
+      }
     },
-    activities: [],
-    reports: [],
-    documents: {
-      trainingFiles: false,
-      approvalFiles: false,
-      officialDocument: false,
-      finalReport: false
-    }
-  };
-  
-  const mockStudentData3 = {
-    id: '2139754205',
-    name: 'Yousef Nader',
-    state: 'In Training',
-    department: 'Computer Engineering',
-    year: '4th Year',
-    gpa: '3.9',
-    email: 'yousef.n@students.hu.edu.jo',
-    phone: '+962 79 9876543',
-    company: {
-      name: 'AI Solutions',
-      id: 'AI202',
-      trainingTitle: 'Machine Learning',
-      location: 'Irbid, Jordan',
-      duration: '10 Weeks',
-      startDate: '15/05/2025',
-      endDate: '25/07/2025'
+    '2139754203': {
+      id: '2139754203',
+      name: 'Omar Hassan',
+      state: 'Completed',
+      department: 'Software Engineering',
+      year: '4th Year',
+      gpa: '3.7',
+      email: 'omar.hassan@students.hu.edu.jo',
+      phone: '+962 79 1122334',
+      company: {
+        name: 'Cloud Systems',
+        id: 'CS789',
+        trainingTitle: 'Cloud Infrastructure',
+        location: 'Remote',
+        duration: '10 Weeks',
+        startDate: '15/01/2025',
+        endDate: '30/03/2025'
+      },
+      activities: [],
+      reports: [],
+      documents: {
+        trainingFiles: true,
+        approvalFiles: true,
+        officialDocument: true,
+        finalReport: true
+      }
     },
-    activities: [],
-    reports: [],
-    documents: {
-      trainingFiles: true,
-      approvalFiles: true,
-      officialDocument: true,
-      finalReport: false
+    '2139754204': {
+      id: '2139754204',
+      name: 'Layla Mahmoud',
+      state: 'Waiting For Approval',
+      department: 'Computer Science',
+      year: '3rd Year',
+      gpa: '3.8',
+      email: 'layla.m@students.hu.edu.jo',
+      phone: '+962 77 1234567',
+      company: {
+        name: 'Mobile Apps Inc',
+        id: 'MA101',
+        trainingTitle: 'Mobile Development',
+        location: 'Amman, Jordan',
+        duration: '8 Weeks',
+        startDate: '01/06/2025',
+        endDate: '31/07/2025'
+      },
+      activities: [],
+      reports: [],
+      documents: {
+        trainingFiles: false,
+        approvalFiles: false,
+        officialDocument: false,
+        finalReport: false
+      }
+    },
+    '2139754205': {
+      id: '2139754205',
+      name: 'Yousef Nader',
+      state: 'In Training',
+      department: 'Computer Engineering',
+      year: '4th Year',
+      gpa: '3.9',
+      email: 'yousef.n@students.hu.edu.jo',
+      phone: '+962 79 9876543',
+      company: {
+        name: 'AI Solutions',
+        id: 'AI202',
+        trainingTitle: 'Machine Learning',
+        location: 'Irbid, Jordan',
+        duration: '10 Weeks',
+        startDate: '15/05/2025',
+        endDate: '25/07/2025'
+      },
+      activities: [],
+      reports: [],
+      documents: {
+        trainingFiles: true,
+        approvalFiles: true,
+        officialDocument: true,
+        finalReport: false
+      }
+    },
+    '2139754206': {
+      id: '2139754206',
+      name: 'Nora Salem',
+      state: 'Not Started',
+      department: 'Cybersecurity',
+      year: '3rd Year',
+      gpa: '3.6',
+      email: 'nora.s@students.hu.edu.jo',
+      phone: '+962 77 5556667',
+      company: {
+        name: 'Cyber Security Ltd',
+        id: 'CS303',
+        trainingTitle: 'Network Security',
+        location: 'Amman, Jordan',
+        duration: '8 Weeks',
+        startDate: 'Pending',
+        endDate: 'Pending'
+      },
+      activities: [],
+      reports: [],
+      documents: {
+        trainingFiles: false,
+        approvalFiles: false,
+        officialDocument: false,
+        finalReport: false
+      }
     }
   };
   
   useEffect(() => {
-    // In a real app, you would fetch student data by ID
-    // For this demo, we're using mock data
+    // Simulate loading delay
     setTimeout(() => {
-      if (studentId === '2139754201') {
-        setStudent(mockStudentData);
-      } else if (studentId === '2139754204') {
-        setStudent(mockStudentData2);
-      } else if (studentId === '2139754205') {
-        setStudent(mockStudentData3);
+      // Look up student by ID from the mockStudentData object
+      const studentData = mockStudentData[studentId];
+      
+      if (studentData) {
+        console.log(`Loading student data for ID: ${studentId}, Name: ${studentData.name}`);
+        setStudent(studentData);
       } else {
-        // Default to first mock student if ID doesn't match
-        setStudent(mockStudentData);
+        console.error(`Student with ID ${studentId} not found`);
+        // Don't set a default student - keep it null to show "not found" message
       }
+      
       setIsLoaded(true);
     }, 500);
-  }, [studentId]);
+  }, [studentId]); // Only re-run when studentId changes
   
   // Handle document upload
   const handleDocumentUpload = (docType) => {
@@ -126,7 +207,7 @@ const StudentDetailView = ({ studentId, onBack }) => {
   // Handle view document
   const handleViewDocument = (docType) => {
     // In a real app, this would open the document
-    alert(`Viewing ${docType} document`);
+    alert(`Viewing ${docType} document for ${student.name}`);
   };
   
   if (!isLoaded) {
@@ -142,7 +223,7 @@ const StudentDetailView = ({ studentId, onBack }) => {
       <div className="min-h-screen bg-gray-50 flex justify-center items-center">
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-bold text-gray-800">Student not found</h2>
-          <p className="text-gray-600 mt-2">The requested student information is not available.</p>
+          <p className="text-gray-600 mt-2">The requested student information (ID: {studentId}) is not available.</p>
           <button 
             onClick={onBack}
             className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"

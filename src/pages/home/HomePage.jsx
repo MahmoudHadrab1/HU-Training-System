@@ -1,7 +1,7 @@
 import React from "react";
-import CompanySection from "../components/home/CompanySection";
-import StudentSection from "../components/home/StudentSection";
-import BenefitsSection from "../components/home/BenefitsSection";
+import CompanySection from "../../components/home/CompanySection";
+import StudentSection from "../../components/home/StudentSection";
+import BenefitsSection from "../../components/home/BenefitsSection";
 
 const HomePage = ({ setActivePage, activeTab, setActiveTab }) => {
   return (

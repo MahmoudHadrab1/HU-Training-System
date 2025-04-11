@@ -1,61 +1,53 @@
-// App.js - Updated with Department Head Dashboard routing
-import React, { useState, useRef } from 'react';
+// App.js - Updated with Footer only on homepage
+import React, { useState } from 'react';
 import Header from './components/common/Header';
+import Footer from './components/common/Footer'; // Import the Footer component
 import BenefitsSection from './components/home/BenefitsSection';
 import CompanySection from './components/home/CompanySection';
 import StudentSection from './components/home/StudentSection';
 import HowItWorks from './components/how-it-works/HowItWorks';
-import AboutPage from './pages/AboutPage.jsx';
-import CompanyPage from './pages/CompanyPage.jsx';
-import DepartmentHeadPage from './pages/DepartmentHeadPage.jsx';
-import LoginPageStudent from './pages/LoginPageStudent.jsx';
-import StudentPage from './pages/StudentPage.jsx';
-import CompanyRegistration from './pages/CompanyRegistration.jsx';
-import CompanyProfileCreation from './pages/CompanyProfileCreation.jsx';
-import CompanyLoginPage from './pages/CompanyLoginPage.jsx';
-import LoginPageDepartmentHead from './pages/LoginPageDepartmentHead.jsx';
-import DepartmentHeadDashboard from './components/department-dashborad.jsx/DepartmentHeadDashboard.jsx';
-//import StudentDetailView from '../components/StudentDetailView';
 
+// Import pages from their new locations
+import AboutPage from './pages/home/AboutPage.jsx';
+import CompanyPage from './pages/company/CompanyPage.jsx';
+import DepartmentHeadPage from './pages/department/DepartmentHeadPage.jsx';
+import LoginPageStudent from './pages/auth/student/LoginPageStudent.jsx';
+import StudentPage from './pages/student/StudentPage.jsx';
+import CompanyRegistration from './pages/auth/company/CompanyRegistration.jsx';
+import CompanyProfileCreation from './pages/auth/company/CompanyProfileCreation.jsx';
+import CompanyLoginPage from './pages/auth/company/CompanyLoginPage.jsx';
+import LoginPageDepartmentHead from './pages/auth/department/LoginPageDepartmentHead.jsx';
+
+// Import dashboard components from their new locations
+import DepartmentHeadDashboard from './components/dashboard/department/DepartmentHeadDashboard.jsx';
+import CompanyDashboard from './components/dashboard/company/CompanyDashboard.jsx';
 function App() {
   const [activeTab, setActiveTab] = useState('company');
   const [activePage, setActivePage] = useState('home');
-  const prevScrollPos = useRef(0);
 
-  // Custom function to handle page changes
+  // دالة تغيير الصفحة – تم تعديلها لإلغاء حفظ موضع التمرير
   const handlePageChange = (page, tab = null) => {
-    // Store current scroll position
-    prevScrollPos.current = window.pageYOffset;
-    
-    // Update state
     if (tab) {
       setActiveTab(tab);
     }
     setActivePage(page);
     
-    // Use double requestAnimationFrame for reliable timing after rendering
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        window.scrollTo(0, prevScrollPos.current);
-      });
-    });
+    // ارجع لأعلى الصفحة دائماً عند التنقل
+    window.scrollTo(0, 0);
   };
 
-  // Function to render the active page
   const renderPage = () => {
     switch(activePage) {
       case 'home':
         return (
-          <>
-            <div className="container mx-auto p-4">
-              {activeTab === 'company' ? 
-                <CompanySection setActivePage={handlePageChange} /> : 
-                <StudentSection setActivePage={handlePageChange} />
-              }
-              <BenefitsSection />
-              <HowItWorks />
-            </div>
-          </>
+          <div className="container mx-auto p-4">
+            {activeTab === 'company' ? 
+              <CompanySection setActivePage={handlePageChange} /> : 
+              <StudentSection setActivePage={handlePageChange} />
+            }
+            <BenefitsSection />
+            <HowItWorks />
+          </div>
         );
       case 'about':
         return <AboutPage />;
@@ -66,59 +58,58 @@ function App() {
       case 'department':
         return <DepartmentHeadPage />;
       case 'login':
-        // For login pages, we DO want to scroll to top
-        window.scrollTo(0, 0);
         return <LoginPageStudent />;
       case 'studentLogin':
-        window.scrollTo(0, 0);
         return <LoginPageStudent setActivePage={handlePageChange} />;
       case 'companyLogin':
-        window.scrollTo(0, 0);
         return <CompanyLoginPage setActivePage={handlePageChange} />;
       case 'departmentLogin':
-        window.scrollTo(0, 0);
         return <LoginPageDepartmentHead setActivePage={handlePageChange} />;
       case 'departmentDashboard':
-        window.scrollTo(0, 0);
         return <DepartmentHeadDashboard setActivePage={handlePageChange} />;
       case 'register':
-        window.scrollTo(0, 0);
         return <CompanyRegistration setActivePage={handlePageChange} />;
       case 'profileCreation':
-        window.scrollTo(0, 0);
         return <CompanyProfileCreation setActivePage={handlePageChange} />;
       case 'companyDashboard':
-        window.scrollTo(0, 0);
-        return <div className="container mx-auto p-4 text-center">
-          <h1 className="text-3xl font-bold mb-4">Company Dashboard</h1>
-          <p className="text-lg">Welcome to your company dashboard! This page is under construction.</p>
-        </div>;
+        return <CompanyDashboard setActivePage={handlePageChange} />;
       default:
         return (
-          <>
-            <div className="container mx-auto p-4">
-              {activeTab === 'company' ? 
-                <CompanySection setActivePage={handlePageChange} /> : 
-                <StudentSection setActivePage={handlePageChange} />
-              }
-              <BenefitsSection />
-              <HowItWorks />
-            </div>
-          </>
+          <div className="container mx-auto p-4">
+            {activeTab === 'company' ? 
+              <CompanySection setActivePage={handlePageChange} /> : 
+              <StudentSection setActivePage={handlePageChange} />
+            }
+            <BenefitsSection />
+            <HowItWorks />
+          </div>
         );
     }
   };
 
+  const showFooter = activePage === 'home';
+  const isDashboardPage = activePage === 'departmentDashboard' || activePage === 'companyDashboard';
+
   return (
-    <div className="min-h-screen font-sans text-gray-800">
-      {activePage === 'departmentDashboard' ? null : (
-        <Header 
+    <div className="min-h-screen font-sans text-gray-800 flex flex-col">
+      <div className="flex-grow">
+        {!isDashboardPage && (
+          <Header 
+            setActivePage={handlePageChange} 
+            setActiveTab={setActiveTab} 
+            activeTab={activeTab} 
+          />
+        )}
+
+        {renderPage()}
+      </div>
+
+      {showFooter && !isDashboardPage && (
+        <Footer 
           setActivePage={handlePageChange} 
-          setActiveTab={setActiveTab} 
           activeTab={activeTab} 
         />
       )}
-      {renderPage()}
     </div>
   );
 }

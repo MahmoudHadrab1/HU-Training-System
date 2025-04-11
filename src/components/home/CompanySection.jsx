@@ -85,6 +85,7 @@ const CompanySection = ({ setActivePage }) => {
       ref={sectionRef} 
       className="company-section bg-gray-100 py-16 px-8 min-h-[80vh] opacity-0 transition-opacity duration-1000 ease-in-out flex items-start pt-20"
     >
+       
       <div className="container mx-auto max-w-6xl">
         <div className="flex flex-col md:flex-row items-center gap-12">
           
@@ -142,4 +143,4 @@ const CompanySection = ({ setActivePage }) => {
   );
 };
 
-export default CompanySection;
+export default CompanySection

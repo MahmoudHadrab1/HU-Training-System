@@ -237,10 +237,10 @@ const Header = ({ setActivePage, setActiveTab, activeTab }) => {
               >
                 Student
                 <span 
-                  className={`absolute bottom-0 left-0 w-full h-0.5 bg-red-600 transform transition-transform duration-300 ${
-                    activeSection === 'student' 
-                      ? 'scale-x-100' 
-                      : 'scale-x-0'
+                  className={`sticky top-0 z-50 border-b border-gray-200 transition-all duration-300 bg-gradient-to-r from-white via-gray-50 to-white ${
+                    scrolled 
+                      ? 'shadow-md py-2' 
+                      : 'shadow-sm py-4'
                   }`}
                 ></span>
               </button>

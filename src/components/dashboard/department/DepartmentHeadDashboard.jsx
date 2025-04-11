@@ -9,14 +9,56 @@ const DepartmentHeadDashboard = ({ setActivePage }) => {
   const [students, setStudents] = useState([]);
   const [selectedStudentId, setSelectedStudentId] = useState(null);
   
-  // Mock student data
+  // Mock student data with complete information for each student
   const mockStudents = [
-    { id: '2139754201', name: 'Ahmed Ali', state: 'In Training', company: 'Tech Solutions', companyId: 'CS123', trainingTitle: 'Web Development' },
-    { id: '2139754202', name: 'Sarah Khan', state: 'Not Started', company: 'DataViz Corp', companyId: 'DV456', trainingTitle: 'Data Analysis' },
-    { id: '2139754203', name: 'Omar Hassan', state: 'Completed', company: 'Cloud Systems', companyId: 'CS789', trainingTitle: 'Cloud Infrastructure' },
-    { id: '2139754204', name: 'Layla Mahmoud', state: 'Waiting For Approval', company: 'Mobile Apps Inc', companyId: 'MA101', trainingTitle: 'Mobile Development' },
-    { id: '2139754205', name: 'Yousef Nader', state: 'In Training', company: 'AI Solutions', companyId: 'AI202', trainingTitle: 'Machine Learning' },
-    { id: '2139754206', name: 'Nora Salem', state: 'Not Started', company: 'Cyber Security Ltd', companyId: 'CS303', trainingTitle: 'Network Security' },
+    { 
+      id: '2139754201', 
+      name: 'Ahmed Ali', 
+      state: 'In Training', 
+      company: 'Tech Solutions', 
+      companyId: 'CS123', 
+      trainingTitle: 'Web Development' 
+    },
+    { 
+      id: '2139754202', 
+      name: 'Sarah Khan', 
+      state: 'Not Started', 
+      company: 'DataViz Corp', 
+      companyId: 'DV456', 
+      trainingTitle: 'Data Analysis' 
+    },
+    { 
+      id: '2139754203', 
+      name: 'Omar Hassan', 
+      state: 'Completed', 
+      company: 'Cloud Systems', 
+      companyId: 'CS789', 
+      trainingTitle: 'Cloud Infrastructure' 
+    },
+    { 
+      id: '2139754204', 
+      name: 'Layla Mahmoud', 
+      state: 'Waiting For Approval', 
+      company: 'Mobile Apps Inc', 
+      companyId: 'MA101', 
+      trainingTitle: 'Mobile Development' 
+    },
+    { 
+      id: '2139754205', 
+      name: 'Yousef Nader', 
+      state: 'In Training', 
+      company: 'AI Solutions', 
+      companyId: 'AI202', 
+      trainingTitle: 'Machine Learning' 
+    },
+    { 
+      id: '2139754206', 
+      name: 'Nora Salem', 
+      state: 'Not Started', 
+      company: 'Cyber Security Ltd', 
+      companyId: 'CS303', 
+      trainingTitle: 'Network Security' 
+    },
   ];
   
   // Mock company posts data
@@ -49,8 +91,9 @@ const DepartmentHeadDashboard = ({ setActivePage }) => {
     setFilterState(state);
   };
 
-  // Handle student info view
+  // Handle student info view - FIXED to use studentId directly
   const handleViewStudentInfo = (studentId) => {
+    console.log(`Opening student info for ID: ${studentId}`);
     setSelectedStudentId(studentId);
   };
   
@@ -112,7 +155,11 @@ const DepartmentHeadDashboard = ({ setActivePage }) => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {students.map((student) => (
-                <div key={student.id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
+                <div 
+                  key={student.id} 
+                  className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+                  data-student-id={student.id} // Add data attribute for debugging
+                >
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3 className="text-lg font-bold text-gray-800">{student.name}</h3>
