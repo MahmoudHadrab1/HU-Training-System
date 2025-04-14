@@ -19,10 +19,18 @@ export default function LoginPageStudent({ setActivePage }) {
     // Check for saved credentials
     const savedCredentials = localStorage.getItem('studentCredentials');
     if (savedCredentials) {
-      const { studentId, rememberMe } = JSON.parse(savedCredentials);
-      setFormData(prev => ({ ...prev, studentId }));
-      setRememberMe(rememberMe);
+      try {
+        const { studentId, rememberMe } = JSON.parse(savedCredentials);
+        setFormData(prev => ({ ...prev, studentId }));
+        setRememberMe(rememberMe);
+      } catch (e) {
+        console.error("Error parsing saved credentials:", e);
+        localStorage.removeItem('studentCredentials');
+      }
     }
+
+    // For testing convenience (remove in production)
+    console.log("Login credentials for testing: ID '123456', password 'password'");
   }, []);
 
   // Handle input changes
@@ -65,11 +73,22 @@ export default function LoginPageStudent({ setActivePage }) {
     
     // Simulate authentication
     setTimeout(() => {
-      // Demo authentication - in production, use real auth system
-      if (formData.studentId === "123456" && formData.password === "password") {
-        // Successful login
-        setActivePage('studentDashboard');
+      // For demo purposes, accept any of these credential sets
+      if (
+        (formData.studentId === "123456" && formData.password === "password") ||
+        (formData.studentId === "student" && formData.password === "student") ||
+        (formData.studentId === "demo" && formData.password === "demo")
+      ) {
+        console.log("Login successful, navigating to student dashboard");
+        // Successful login - explicitly call setActivePage to redirect
+        if (typeof setActivePage === 'function') {
+          setActivePage('studentDashboard');
+        } else {
+          console.error("setActivePage is not a function:", setActivePage);
+          alert("Navigation error: Please contact support. (Error: Invalid navigation function)");
+        }
       } else {
+        console.log("Login failed, invalid credentials provided");
         setError("Invalid credentials. Please check your ID and password.");
       }
       setIsSubmitting(false);
@@ -80,6 +99,15 @@ export default function LoginPageStudent({ setActivePage }) {
   const handleForgotPassword = () => {
     // Replace with actual forgot password functionality
     alert("Forgot password functionality will be implemented here");
+  };
+
+  // Debug function to help with login issues (remove in production)
+  const debugLogin = () => {
+    console.log("Debug: Setting test credentials");
+    setFormData({
+      studentId: "123456",
+      password: "password"
+    });
   };
 
   return (
@@ -360,6 +388,17 @@ export default function LoginPageStudent({ setActivePage }) {
               className="text-sm text-gray-600 hover:text-gray-800 focus:outline-none"
             >
               Need help? Contact your department
+            </button>
+          </div>
+
+          {/* Auto-fill button for testing (hidden in production) */}
+          <div className="mt-4 text-center">
+            <button
+              type="button"
+              onClick={debugLogin}
+              className="text-xs text-gray-400 hover:text-gray-600"
+            >
+              Auto-fill test credentials
             </button>
           </div>
         </div>

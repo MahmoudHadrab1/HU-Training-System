@@ -69,13 +69,37 @@ const Header = ({ setActivePage, setActiveTab, activeTab }) => {
 
   return (
     <header 
-      className={`sticky top-0 z-50 bg-white border-b transition-all duration-300 ${
+      className={`sticky top-0 z-50 transition-all duration-300 ${
         scrolled 
           ? 'shadow-md py-2' 
           : 'shadow-sm py-4'
       }`}
+      style={{
+        background: 'linear-gradient(135deg, #ffffff 0%, #f9f9f9 100%)',
+        backgroundSize: '100% 100%',
+        backgroundAttachment: 'fixed',
+        borderBottom: '1px solid rgba(229, 231, 235, 0.8)'
+      }}
     >
-      <div className="container mx-auto px-4 flex justify-between items-center">
+      {/* Decorative header elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div 
+          className="absolute top-0 right-0 w-1/3 h-full opacity-10"
+          style={{ 
+            background: 'radial-gradient(circle, #ef4444 0%, transparent 70%)',
+            mixBlendMode: 'multiply'
+          }}
+        ></div>
+        <div 
+          className="absolute bottom-0 left-0 w-1/4 h-full opacity-5"
+          style={{ 
+            background: 'radial-gradient(circle at bottom left, #3b82f6 0%, transparent 70%)',
+            mixBlendMode: 'multiply'
+          }}
+        ></div>
+      </div>
+
+      <div className="container mx-auto px-4 flex justify-between items-center relative z-10">
         <div
           className="logo cursor-pointer transform transition-transform duration-300 hover:scale-105 flex items-center"
           onClick={() => handleNavClick('home')}
@@ -237,16 +261,14 @@ const Header = ({ setActivePage, setActiveTab, activeTab }) => {
               >
                 Student
                 <span 
-                  className={`sticky top-0 z-50 border-b border-gray-200 transition-all duration-300 bg-gradient-to-r from-white via-gray-50 to-white ${
-                    scrolled 
-                      ? 'shadow-md py-2' 
-                      : 'shadow-sm py-4'
+                  className={`absolute bottom-0 left-0 w-full h-0.5 bg-red-600 transform transition-transform duration-300 ${
+                    activeSection === 'student' 
+                      ? 'scale-x-100' 
+                      : 'scale-x-0'
                   }`}
                 ></span>
               </button>
             </li>
-            
-          
           </ul>
         </nav>
       </div>

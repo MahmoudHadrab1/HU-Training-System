@@ -57,6 +57,7 @@ const HowItWorks = () => {
     };
 
     return (
+        
         <div 
             ref={sectionRef}
             id="how-it-works" 
@@ -93,6 +94,7 @@ const HowItWorks = () => {
                 {isStudentView ? <HowItWorksStudents /> : <HowItWorksCompanies />}
             </div>
         </div>
+        
     );
 };
 

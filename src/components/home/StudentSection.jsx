@@ -63,6 +63,10 @@ const StudentSection = ({ setActivePage }) => {
   };
 
   return (
+    <>
+    {/* Full screen background - fixed position so it stays in place when scrolling */}
+    <div className="absolute inset-0 -z-10 bg-gray-100"></div>
+    <div className="absolute inset-0 -z-10 bg-dots-pattern opacity-5"></div>
     <section 
       ref={sectionRef} 
       className="student-section  bg-gray-100 py-16 px-8 min-h-[80vh] opacity-0 transition-opacity duration-1000 ease-in-out flex items-start pt-20"
@@ -123,6 +127,7 @@ const StudentSection = ({ setActivePage }) => {
         </div>
       </div>
     </section>
+    </>
   );
 };
 

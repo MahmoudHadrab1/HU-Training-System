@@ -104,10 +104,13 @@ const BenefitsSection = () => {
   }, []);
 
   return (
+    <>
+    {/* Full screen background - fixed position so it stays in place when scrolling */}
+    <div className="fixed inset-0 -z-10 bg-gray-100"></div>
+    <div className="fixed inset-0 -z-10 bg-dots-pattern opacity-5"></div>
     <div 
       ref={sectionRef}
       className="benefits-section bg-gray-100 py-16 px-6 text-center opacity-0 transition-all duration-1000 ease-out"
-     
     >
       
       {/* Header Section with enhanced animation */}
@@ -127,7 +130,7 @@ const BenefitsSection = () => {
           Students gain experience, companies find talent, and academic departments ensure quality.
         </p>
       </div>
-
+  
       {/* Benefits Cards with improved staggered animations */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {benefits.map((benefit, index) => (
@@ -155,7 +158,7 @@ const BenefitsSection = () => {
           </div>
         ))}
       </div>
-
+  
       {/* Add CSS for additional animations */}
       <style jsx>{`
         .heading-container.opacity-100 .heading-underline {
@@ -169,7 +172,9 @@ const BenefitsSection = () => {
         }
       `}</style>
     </div>
+    </>
   );
+  
 };
 
 export default BenefitsSection;

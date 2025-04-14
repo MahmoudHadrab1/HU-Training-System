@@ -21,6 +21,7 @@ import LoginPageDepartmentHead from './pages/auth/department/LoginPageDepartment
 // Import dashboard components from their new locations
 import DepartmentHeadDashboard from './components/dashboard/department/DepartmentHeadDashboard.jsx';
 import CompanyDashboard from './components/dashboard/company/CompanyDashboard.jsx';
+import StudentDashboard from './components/dashboard/student/studentDashborad.jsx';
 function App() {
   const [activeTab, setActiveTab] = useState('company');
   const [activePage, setActivePage] = useState('home');
@@ -71,6 +72,8 @@ function App() {
         return <CompanyRegistration setActivePage={handlePageChange} />;
       case 'profileCreation':
         return <CompanyProfileCreation setActivePage={handlePageChange} />;
+        case 'studentDashboard':
+      return <StudentDashboard setActivePage={handlePageChange} />;
       case 'companyDashboard':
         return <CompanyDashboard setActivePage={handlePageChange} />;
       default:
