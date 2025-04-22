@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Upload } from 'lucide-react';
 
 const SubmitReportModal = ({ isOpen, onClose, onSubmit, student, trainingTitle }) => {
   const [reportData, setReportData] = useState({
@@ -10,6 +11,8 @@ const SubmitReportModal = ({ isOpen, onClose, onSubmit, student, trainingTitle }
     recommendation: 'Recommended'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reportFile, setReportFile] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,6 +29,41 @@ const SubmitReportModal = ({ isOpen, onClose, onSubmit, student, trainingTitle }
     }));
   };
 
+  // Handle file selection
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setReportFile(e.target.files[0]);
+    }
+  };
+
+  // Handle drag events
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setReportFile(e.dataTransfer.files[0]);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -36,6 +74,7 @@ const SubmitReportModal = ({ isOpen, onClose, onSubmit, student, trainingTitle }
         studentName: student,
         trainingTitle,
         ...reportData,
+        reportFile: reportFile ? reportFile.name : null,
         submissionDate: new Date().toISOString().split('T')[0]
       });
       setIsSubmitting(false);
@@ -50,6 +89,7 @@ const SubmitReportModal = ({ isOpen, onClose, onSubmit, student, trainingTitle }
         comments: '',
         recommendation: 'Recommended'
       });
+      setReportFile(null);
     }, 600);
   };
 
@@ -77,6 +117,43 @@ const SubmitReportModal = ({ isOpen, onClose, onSubmit, student, trainingTitle }
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* File Upload Section */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Upload Report Document
+            </label>
+            <div 
+              className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
+                isDragging ? 'border-red-400 bg-red-50' : reportFile ? 'border-green-400 bg-green-50' : 'border-gray-300 hover:border-gray-400'
+              }`}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onClick={() => document.getElementById('fileUpload').click()}
+            >
+              <input
+                type="file"
+                id="fileUpload"
+                className="hidden"
+                onChange={handleFileChange}
+                accept=".pdf,.doc,.docx,.txt"
+              />
+              <Upload className="w-12 h-12 mx-auto text-gray-400 mb-2" />
+              {reportFile ? (
+                <div>
+                  <p className="text-green-600 font-medium">File selected: {reportFile.name}</p>
+                  <p className="text-sm text-gray-500 mt-1">Click or drag to replace</p>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-gray-600">Drag & drop your report file here or click to browse</p>
+                  <p className="text-sm text-gray-500 mt-1">Supports PDF, DOC, DOCX, TXT</p>
+                </div>
+              )}
+            </div>
+          </div>
+
           <div>
             <label htmlFor="performance" className="block text-sm font-medium text-gray-700 mb-1">
               Overall Performance*
@@ -210,8 +287,10 @@ const SubmitReportModal = ({ isOpen, onClose, onSubmit, student, trainingTitle }
             </button>
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors duration-300 flex items-center"
+              disabled={isSubmitting || !reportFile}
+              className={`bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors duration-300 flex items-center ${
+                !reportFile ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
               {isSubmitting ? (
                 <>

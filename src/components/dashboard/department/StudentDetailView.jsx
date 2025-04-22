@@ -4,8 +4,9 @@ const StudentDetailView = ({ studentId, onBack }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [student, setStudent] = useState(null);
   const [activeTab, setActiveTab] = useState('info');
+  const [reports, setReports] = useState([]);
   
-  // Complete mock data for ALL students
+  // Mock data for students with proper document structure, including separate reports
   const mockStudentData = {
     '2139754201': {
       id: '2139754201',
@@ -25,13 +26,31 @@ const StudentDetailView = ({ studentId, onBack }) => {
         startDate: '01/06/2025',
         endDate: '31/07/2025'
       },
-      activities: [],
-      reports: [],
+      activityReports: [
+        { id: 1, title: 'Week 1 Progress', date: '08/06/2025', status: 'Completed', submittedBy: 'Sarah Manager' },
+        { id: 2, title: 'Week 2 Progress', date: '15/06/2025', status: 'Completed', submittedBy: 'Sarah Manager' },
+      ],
       documents: {
-        trainingFiles: false,
-        approvalFiles: false,
-        officialDocument: false,
-        finalReport: false
+        officialTrainingDocument: {
+          status: true,
+          date: '30/05/2025',
+          filename: 'ahmed_ali_official_training_doc.pdf'
+        },
+        approvalFiles: {
+          status: true,
+          date: '02/06/2025',
+          filename: 'ahmed_ali_approval.pdf'
+        },
+        studentFinalReport: {
+          status: false,
+          date: '',
+          filename: ''
+        },
+        companyFinalReport: {
+          status: false,
+          date: '',
+          filename: ''
+        }
       }
     },
     '2139754202': {
@@ -52,13 +71,28 @@ const StudentDetailView = ({ studentId, onBack }) => {
         startDate: 'Pending',
         endDate: 'Pending'
       },
-      activities: [],
-      reports: [],
+      activityReports: [],
       documents: {
-        trainingFiles: false,
-        approvalFiles: false,
-        officialDocument: false,
-        finalReport: false
+        officialTrainingDocument: {
+          status: false,
+          date: '',
+          filename: ''
+        },
+        approvalFiles: {
+          status: false,
+          date: '',
+          filename: ''
+        },
+        studentFinalReport: {
+          status: false,
+          date: '',
+          filename: ''
+        },
+        companyFinalReport: {
+          status: false,
+          date: '',
+          filename: ''
+        }
       }
     },
     '2139754203': {
@@ -79,13 +113,39 @@ const StudentDetailView = ({ studentId, onBack }) => {
         startDate: '15/01/2025',
         endDate: '30/03/2025'
       },
-      activities: [],
-      reports: [],
+      activityReports: [
+        { id: 1, title: 'Week 1 Progress', date: '22/01/2025', status: 'Completed', submittedBy: 'Ali Director' },
+        { id: 2, title: 'Week 2 Progress', date: '29/01/2025', status: 'Completed', submittedBy: 'Ali Director' },
+        { id: 3, title: 'Week 3 Progress', date: '05/02/2025', status: 'Completed', submittedBy: 'Ali Director' },
+        { id: 4, title: 'Week 4 Progress', date: '12/02/2025', status: 'Completed', submittedBy: 'Ali Director' },
+        { id: 5, title: 'Mid-term Evaluation', date: '19/02/2025', status: 'Completed', submittedBy: 'Mohammad Supervisor' },
+        { id: 6, title: 'Week 6 Progress', date: '26/02/2025', status: 'Completed', submittedBy: 'Ali Director' },
+        { id: 7, title: 'Week 7 Progress', date: '05/03/2025', status: 'Completed', submittedBy: 'Ali Director' },
+        { id: 8, title: 'Week 8 Progress', date: '12/03/2025', status: 'Completed', submittedBy: 'Ali Director' },
+        { id: 9, title: 'Week 9 Progress', date: '19/03/2025', status: 'Completed', submittedBy: 'Ali Director' },
+        { id: 10, title: 'Final Evaluation', date: '30/03/2025', status: 'Completed', submittedBy: 'Mohammad Supervisor' },
+      ],
       documents: {
-        trainingFiles: true,
-        approvalFiles: true,
-        officialDocument: true,
-        finalReport: true
+        officialTrainingDocument: {
+          status: true,
+          date: '10/01/2025',
+          filename: 'omar_hassan_official_training_doc.pdf'
+        },
+        approvalFiles: {
+          status: true,
+          date: '12/01/2025',
+          filename: 'omar_hassan_approval.pdf'
+        },
+        studentFinalReport: {
+          status: true,
+          date: '31/03/2025',
+          filename: 'omar_hassan_student_final_report.pdf'
+        },
+        companyFinalReport: {
+          status: true,
+          date: '31/03/2025',
+          filename: 'omar_hassan_company_final_report.pdf'
+        }
       }
     },
     '2139754204': {
@@ -106,13 +166,28 @@ const StudentDetailView = ({ studentId, onBack }) => {
         startDate: '01/06/2025',
         endDate: '31/07/2025'
       },
-      activities: [],
-      reports: [],
+      activityReports: [],
       documents: {
-        trainingFiles: false,
-        approvalFiles: false,
-        officialDocument: false,
-        finalReport: false
+        officialTrainingDocument: {
+          status: false,
+          date: '',
+          filename: ''
+        },
+        approvalFiles: {
+          status: false,
+          date: '',
+          filename: ''
+        },
+        studentFinalReport: {
+          status: false,
+          date: '',
+          filename: ''
+        },
+        companyFinalReport: {
+          status: false,
+          date: '',
+          filename: ''
+        }
       }
     },
     '2139754205': {
@@ -133,13 +208,34 @@ const StudentDetailView = ({ studentId, onBack }) => {
         startDate: '15/05/2025',
         endDate: '25/07/2025'
       },
-      activities: [],
-      reports: [],
+      activityReports: [
+        { id: 1, title: 'Week 1 Progress', date: '22/05/2025', status: 'Completed', submittedBy: 'Noor Manager' },
+        { id: 2, title: 'Week 2 Progress', date: '29/05/2025', status: 'Completed', submittedBy: 'Noor Manager' },
+        { id: 3, title: 'Week 3 Progress', date: '05/06/2025', status: 'Completed', submittedBy: 'Noor Manager' },
+        { id: 4, title: 'Week 4 Progress', date: '12/06/2025', status: 'Completed', submittedBy: 'Noor Manager' },
+        { id: 5, title: 'Mid-term Evaluation', date: '19/06/2025', status: 'In Progress', submittedBy: 'Pending' },
+      ],
       documents: {
-        trainingFiles: true,
-        approvalFiles: true,
-        officialDocument: true,
-        finalReport: false
+        officialTrainingDocument: {
+          status: true,
+          date: '10/05/2025',
+          filename: 'yousef_nader_official_training_doc.pdf'
+        },
+        approvalFiles: {
+          status: true,
+          date: '12/05/2025',
+          filename: 'yousef_nader_approval.pdf'
+        },
+        studentFinalReport: {
+          status: false,
+          date: '',
+          filename: ''
+        },
+        companyFinalReport: {
+          status: false,
+          date: '',
+          filename: ''
+        }
       }
     },
     '2139754206': {
@@ -160,13 +256,28 @@ const StudentDetailView = ({ studentId, onBack }) => {
         startDate: 'Pending',
         endDate: 'Pending'
       },
-      activities: [],
-      reports: [],
+      activityReports: [],
       documents: {
-        trainingFiles: false,
-        approvalFiles: false,
-        officialDocument: false,
-        finalReport: false
+        officialTrainingDocument: {
+          status: false,
+          date: '',
+          filename: ''
+        },
+        approvalFiles: {
+          status: false,
+          date: '',
+          filename: ''
+        },
+        studentFinalReport: {
+          status: false,
+          date: '',
+          filename: ''
+        },
+        companyFinalReport: {
+          status: false,
+          date: '',
+          filename: ''
+        }
       }
     }
   };
@@ -179,7 +290,24 @@ const StudentDetailView = ({ studentId, onBack }) => {
       
       if (studentData) {
         console.log(`Loading student data for ID: ${studentId}, Name: ${studentData.name}`);
-        setStudent(studentData);
+        
+        // Ensure all required document properties exist
+        const safeStudentData = {
+          ...studentData,
+          documents: {
+            officialTrainingDocument: studentData.documents?.officialTrainingDocument || { status: false, date: '', filename: '' },
+            approvalFiles: studentData.documents?.approvalFiles || { status: false, date: '', filename: '' },
+            studentFinalReport: studentData.documents?.studentFinalReport || { status: false, date: '', filename: '' },
+            companyFinalReport: studentData.documents?.companyFinalReport || { status: false, date: '', filename: '' }
+          }
+        };
+        
+        setStudent(safeStudentData);
+        
+        // Set reports data if available
+        if (studentData.activityReports && studentData.activityReports.length > 0) {
+          setReports(studentData.activityReports);
+        }
       } else {
         console.error(`Student with ID ${studentId} not found`);
         // Don't set a default student - keep it null to show "not found" message
@@ -189,25 +317,59 @@ const StudentDetailView = ({ studentId, onBack }) => {
     }, 500);
   }, [studentId]); // Only re-run when studentId changes
   
+  // Safety function to check document status
+  const getDocumentStatus = (docType) => {
+    try {
+      return student?.documents?.[docType]?.status || false;
+    } catch (err) {
+      console.error(`Error accessing document status for ${docType}:`, err);
+      return false;
+    }
+  };
+  
+  // Safety function to get document date
+  const getDocumentDate = (docType) => {
+    try {
+      return student?.documents?.[docType]?.date || '';
+    } catch (err) {
+      console.error(`Error accessing document date for ${docType}:`, err);
+      return '';
+    }
+  };
+  
   // Handle document upload
   const handleDocumentUpload = (docType) => {
     // In a real app, this would handle file upload
     alert(`The ${docType} has been successfully sent to the company`);
     
-    // Update the student document status
-    setStudent(prev => ({
-      ...prev,
-      documents: {
-        ...prev.documents,
-        [docType]: true
-      }
-    }));
+    // Update the student document status with safety checks
+    setStudent(prev => {
+      if (!prev || !prev.documents) return prev;
+      
+      return {
+        ...prev,
+        documents: {
+          ...prev.documents,
+          [docType]: {
+            ...(prev.documents[docType] || {}),
+            status: true,
+            date: new Date().toLocaleDateString('en-GB').replace(/\//g, '/')
+          }
+        }
+      };
+    });
   };
   
-  // Handle view document
+  // Handle view document with safety checks
   const handleViewDocument = (docType) => {
     // In a real app, this would open the document
-    alert(`Viewing ${docType} document for ${student.name}`);
+    alert(`Viewing ${docType} for ${student?.name || 'student'}`);
+  };
+  
+  // Handle view report with safety checks
+  const handleViewReport = (reportId) => {
+    // In a real app, this would open the report
+    alert(`Viewing report ID: ${reportId} for ${student?.name || 'student'}`);
   };
   
   if (!isLoaded) {
@@ -303,43 +465,43 @@ const StudentDetailView = ({ studentId, onBack }) => {
         {/* Tab navigation */}
         <div className="flex border-b border-gray-300 mb-6">
           <button
-            className={`py-3 px-4 font-medium relative transition duration-300 ${
-              activeTab === 'info' ? 'text-red-600 font-semibold' : 'text-gray-600 hover:text-gray-800'
+            className={`py-3 px-4 mr-4 font-medium relative transition duration-300 ${
+              activeTab === 'info' ? "text-red-600 font-semibold" : "text-gray-600 hover:text-red-600"
             }`}
             onClick={() => setActiveTab('info')}
           >
             Training Information
             <span
               className={`absolute bottom-0 left-0 w-full h-0.5 bg-red-600 transform transition-transform duration-300 ${
-                activeTab === 'info' ? 'scale-x-100' : 'scale-x-0'
+                activeTab === 'info' ? "scale-x-100" : "scale-x-0"
               }`}
             ></span>
           </button>
           
           <button
             className={`py-3 px-4 font-medium relative transition duration-300 ${
-              activeTab === 'documents' ? 'text-red-600 font-semibold' : 'text-gray-600 hover:text-gray-800'
+              activeTab === 'documents' ? "text-red-600 font-semibold" : "text-gray-600 hover:text-red-600"
             }`}
             onClick={() => setActiveTab('documents')}
           >
             Documents & Reports
             <span
               className={`absolute bottom-0 left-0 w-full h-0.5 bg-red-600 transform transition-transform duration-300 ${
-                activeTab === 'documents' ? 'scale-x-100' : 'scale-x-0'
+                activeTab === 'documents' ? "scale-x-100" : "scale-x-0"
               }`}
             ></span>
           </button>
           
           <button
             className={`py-3 px-4 font-medium relative transition duration-300 ${
-              activeTab === 'activity' ? 'text-red-600 font-semibold' : 'text-gray-600 hover:text-gray-800'
+              activeTab === 'activityReports' ? "text-red-600 font-semibold" : "text-gray-600 hover:text-red-600"
             }`}
-            onClick={() => setActiveTab('activity')}
+            onClick={() => setActiveTab('activityReports')}
           >
-            Activity Logs
+            Activity Reports
             <span
               className={`absolute bottom-0 left-0 w-full h-0.5 bg-red-600 transform transition-transform duration-300 ${
-                activeTab === 'activity' ? 'scale-x-100' : 'scale-x-0'
+                activeTab === 'activityReports' ? "scale-x-100" : "scale-x-0"
               }`}
             ></span>
           </button>
@@ -361,20 +523,20 @@ const StudentDetailView = ({ studentId, onBack }) => {
                     <div>
                       <h3 className="font-semibold text-gray-700 mb-3">Company Details</h3>
                       <div className="bg-gray-50 p-4 rounded-md">
-                        <p className="text-gray-800 font-medium">{student.company.name}</p>
-                        <p className="text-gray-600 text-sm">ID: {student.company.id}</p>
-                        <p className="text-gray-600 mt-2">{student.company.location}</p>
+                        <p className="text-gray-800 font-medium">{student.company?.name || 'N/A'}</p>
+                        <p className="text-gray-600 text-sm">ID: {student.company?.id || 'N/A'}</p>
+                        <p className="text-gray-600 mt-2">{student.company?.location || 'N/A'}</p>
                       </div>
                     </div>
                     
                     <div>
                       <h3 className="font-semibold text-gray-700 mb-3">Training Program</h3>
                       <div className="bg-gray-50 p-4 rounded-md">
-                        <p className="text-gray-800 font-medium">{student.company.trainingTitle}</p>
-                        <p className="text-gray-600 mt-2">Duration: {student.company.duration}</p>
+                        <p className="text-gray-800 font-medium">{student.company?.trainingTitle || 'N/A'}</p>
+                        <p className="text-gray-600 mt-2">Duration: {student.company?.duration || 'N/A'}</p>
                         <div className="flex justify-between mt-2">
-                          <p className="text-gray-600 text-sm">Start: {student.company.startDate}</p>
-                          <p className="text-gray-600 text-sm">End: {student.company.endDate}</p>
+                          <p className="text-gray-600 text-sm">Start: {student.company?.startDate || 'N/A'}</p>
+                          <p className="text-gray-600 text-sm">End: {student.company?.endDate || 'N/A'}</p>
                         </div>
                       </div>
                     </div>
@@ -391,13 +553,13 @@ const StudentDetailView = ({ studentId, onBack }) => {
                         <div className="ml-3">
                           <h3 className="font-semibold text-yellow-800">Waiting for Approval</h3>
                           <p className="text-yellow-700 mt-1">
-                            This student is waiting for the training document to be sent to the company to complete their procedures.
+                            This student is waiting for the official training document to be sent to the company to complete their procedures.
                           </p>
                           <button
-                            onClick={() => handleDocumentUpload('trainingDocument')}
+                            onClick={() => handleDocumentUpload('officialTrainingDocument')}
                             className="mt-3 px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors"
                           >
-                            Send Training Document
+                            Send Official Training Document
                           </button>
                         </div>
                       </div>
@@ -415,7 +577,7 @@ const StudentDetailView = ({ studentId, onBack }) => {
                         <div className="ml-3">
                           <h3 className="font-semibold text-blue-800">Training in Progress</h3>
                           <p className="text-blue-700 mt-1">
-                            This student is currently undergoing training at the company. You can review their activity reports in the Activity Logs tab.
+                            This student is currently undergoing training at the company. You can review their activity reports in the Activity Reports tab.
                           </p>
                         </div>
                       </div>
@@ -455,36 +617,48 @@ const StudentDetailView = ({ studentId, onBack }) => {
               ) : (
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Official Training Document - Combined document */}
                     <div className="border border-gray-200 rounded-md p-4">
                       <h3 className="font-semibold text-gray-700 flex items-center">
                         <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        Training Document
+                        Official Training Document
                       </h3>
-                      <div className="mt-3 flex">
-                        {student.documents.trainingDocument ? (
-                          <>
+                      <div className="mt-3 flex items-center justify-between">
+                        <div>
+                          {getDocumentStatus('officialTrainingDocument') ? (
+                            <div className="flex items-center">
+                              <span className="px-2 py-1 bg-green-100 text-green-800 rounded-md text-sm mr-3">Sent</span>
+                              <span className="text-sm text-gray-600">Date: {getDocumentDate('officialTrainingDocument')}</span>
+                            </div>
+                          ) : (
+                            <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-sm">Not sent</span>
+                          )}
+                        </div>
+                        
+                        <div>
+                          {getDocumentStatus('officialTrainingDocument') ? (
                             <button
-                              onClick={() => handleViewDocument('trainingDocument')}
-                              className="px-3 py-1 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors mr-2"
+                              onClick={() => handleViewDocument('officialTrainingDocument')}
+                              className="px-3 py-1 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
                             >
                               View
                             </button>
-                            <span className="px-2 py-1 bg-green-100 text-green-800 rounded-md text-sm">Sent</span>
-                          </>
-                        ) : (
-                          <button
-                            onClick={() => handleDocumentUpload('trainingDocument')}
-                            className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                          >
-                            Send Document
-                          </button>
-                        )}
+                          ) : (
+                            <button
+                              onClick={() => handleDocumentUpload('officialTrainingDocument')}
+                              className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                            >
+                              Send Document
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                     
-                    {(student.state === 'In Training' || student.state === 'Completed') && (
+                    {/* Approval Files - For both In Training and Completed states */}
+                    {(student.state === 'In Training' || student.state === 'Completed' || student.state === 'Waiting For Approval') && (
                       <div className="border border-gray-200 rounded-md p-4">
                         <h3 className="font-semibold text-gray-700 flex items-center">
                           <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -492,89 +666,239 @@ const StudentDetailView = ({ studentId, onBack }) => {
                           </svg>
                           Approval Files
                         </h3>
-                        <div className="mt-3">
-                          {student.documents.approvalFiles ? (
-                            <button
-                              onClick={() => handleViewDocument('approvalFiles')}
-                              className="px-3 py-1 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
-                            >
-                              View
-                            </button>
-                          ) : (
-                            <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-sm">Not available</span>
-                          )}
+                        <div className="mt-3 flex items-center justify-between">
+                          <div>
+                            {getDocumentStatus('approvalFiles') ? (
+                              <div className="flex items-center">
+                                <span className="px-2 py-1 bg-green-100 text-green-800 rounded-md text-sm mr-3">Received</span>
+                                <span className="text-sm text-gray-600">Date: {getDocumentDate('approvalFiles')}</span>
+                              </div>
+                            ) : (
+                              <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-sm">Not available</span>
+                            )}
+                          </div>
+                          
+                          <div>
+                            {getDocumentStatus('approvalFiles') ? (
+                              <button
+                                onClick={() => handleViewDocument('approvalFiles')}
+                                className="px-3 py-1 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+                              >
+                                View
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleDocumentUpload('approvalFiles')}
+                                className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                              >
+                                Send Document
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     )}
                     
-                    {student.state === 'Completed' && (
-                      <>
-                        <div className="border border-gray-200 rounded-md p-4">
-                          <h3 className="font-semibold text-gray-700 flex items-center">
-                            <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            Student Final Report
-                          </h3>
-                          <div className="mt-3">
-                            {student.documents.finalReport ? (
+                    {/* Student Final Report - Only for Completed/In Training states */}
+                    {(student.state === 'Completed' || student.state === 'In Training') && (
+                      <div className="border border-gray-200 rounded-md p-4">
+                        <h3 className="font-semibold text-gray-700 flex items-center">
+                          <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          Student Final Report
+                        </h3>
+                        <div className="mt-3 flex items-center justify-between">
+                          <div>
+                            {getDocumentStatus('studentFinalReport') ? (
+                              <div className="flex items-center">
+                                <span className="px-2 py-1 bg-green-100 text-green-800 rounded-md text-sm mr-3">Submitted</span>
+                                <span className="text-sm text-gray-600">Date: {getDocumentDate('studentFinalReport')}</span>
+                              </div>
+                            ) : (
+                              <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-sm">Not submitted</span>
+                            )}
+                          </div>
+                          
+                          <div>
+                            {getDocumentStatus('studentFinalReport') ? (
                               <button
-                                onClick={() => handleViewDocument('finalReport')}
-                                className="px-3 py-1 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                                onClick={() => handleViewDocument('studentFinalReport')}
+                                className="px-3 py-1 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
                               >
                                 View
                               </button>
                             ) : (
-                              <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-sm">Not received</span>
+                              <span className="text-sm text-gray-500 italic">Awaiting submission</span>
                             )}
                           </div>
                         </div>
-                        
-                        <div className="border border-gray-200 rounded-md p-4">
-                          <h3 className="font-semibold text-gray-700 flex items-center">
-                            <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            Company Evaluation
-                          </h3>
-                          <div className="mt-3">
-                            {student.documents.companyEvaluation ? (
+                      </div>
+                    )}
+                    
+                    {/* Company Final Report - Only for Completed/In Training states */}
+                    {(student.state === 'Completed' || student.state === 'In Training') && (
+                      <div className="border border-gray-200 rounded-md p-4">
+                        <h3 className="font-semibold text-gray-700 flex items-center">
+                          <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          Company Final Report
+                        </h3>
+                        <div className="mt-3 flex items-center justify-between">
+                          <div>
+                            {getDocumentStatus('companyFinalReport') ? (
+                              <div className="flex items-center">
+                                <span className="px-2 py-1 bg-green-100 text-green-800 rounded-md text-sm mr-3">Submitted</span>
+                                <span className="text-sm text-gray-600">Date: {getDocumentDate('companyFinalReport')}</span>
+                              </div>
+                            ) : (
+                              <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-sm">Not submitted</span>
+                            )}
+                          </div>
+                          
+                          <div>
+                            {getDocumentStatus('companyFinalReport') ? (
                               <button
-                                onClick={() => handleViewDocument('companyEvaluation')}
-                                className="px-3 py-1 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                                onClick={() => handleViewDocument('companyFinalReport')}
+                                className="px-3 py-1 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
                               >
                                 View
                               </button>
                             ) : (
-                              <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-sm">Not received</span>
+                              <span className="text-sm text-gray-500 italic">Awaiting submission</span>
                             )}
                           </div>
                         </div>
-                      </>
+                      </div>
                     )}
                   </div>
+                  
+                  {/* Document information box - Only for states requiring documents */}
+                  {(student.state === 'Waiting For Approval' || student.state === 'In Training') && (
+                    <div className="mt-6 bg-blue-50 p-4 rounded-md">
+                      <div className="flex items-start">
+                        <div className="bg-blue-100 p-2 rounded-full">
+                          <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <div className="ml-3">
+                          <h3 className="font-semibold text-blue-800">Document Information</h3>
+                          <p className="text-blue-700 mt-1">
+                            {student.state === 'Waiting For Approval' 
+                              ? "The student is waiting for the official training document to be sent to the company. Please send the necessary document to proceed with the internship."
+                              : "The student's internship is in progress. You can send or view any required documents from this section. Final reports will be submitted at the end of the internship."}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Final reports info box - Only for Completed state */}
+                  {student.state === 'Completed' && (
+                    <div className="mt-6 bg-green-50 p-4 rounded-md">
+                      <div className="flex items-start">
+                        <div className="bg-green-100 p-2 rounded-full">
+                          <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <div className="ml-3">
+                          <h3 className="font-semibold text-green-800">Final Reports Information</h3>
+                          <p className="text-green-700 mt-1">
+                            Both the student and the company are required to submit final reports at the end of the internship. 
+                            These reports help evaluate the success of the internship and provide valuable feedback for future improvements.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           )}
           
-          {activeTab === 'activity' && (
+          {activeTab === 'activityReports' && (
             <div className="space-y-6">
-              <h2 className="text-xl font-bold text-gray-800">Activity Logs</h2>
+              <h2 className="text-xl font-bold text-gray-800">Activity Reports</h2>
               
               {student.state === 'Not Started' ? (
                 <div className="bg-gray-50 p-4 rounded-md">
-                  <p className="text-gray-700">No activity logs available as the student has not started any training yet.</p>
+                  <p className="text-gray-700">No activity reports available as the student has not started any training yet.</p>
                 </div>
-              ) : student.activities.length === 0 ? (
+              ) : reports.length === 0 ? (
                 <div className="bg-gray-50 p-4 rounded-md">
-                  <p className="text-gray-700">No activity logs available yet.</p>
+                  <p className="text-gray-700">No activity reports have been submitted by the company yet.</p>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {/* Activity logs would go here */}
-                  <div className="bg-gray-50 p-4 rounded-md">
-                    <p className="text-gray-700">No activity logs have been recorded yet.</p>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Report</th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted By</th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {reports.map((report) => (
+                        <tr key={report.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">{report.title}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-500">{report.date}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                              report.status === 'Completed' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {report.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-500">{report.submittedBy}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            {report.status === 'Completed' ? (
+                              <button
+                                onClick={() => handleViewReport(report.id)}
+                                className="text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded transition-colors"
+                              >
+                                View Report
+                              </button>
+                            ) : (
+                              <span className="text-gray-400">Pending</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              
+              {/* Information box for department head */}
+              {(student.state === 'In Training' || student.state === 'Completed') && (
+                <div className="mt-6 bg-blue-50 p-4 rounded-md">
+                  <div className="flex items-start">
+                    <div className="bg-blue-100 p-2 rounded-full">
+                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <h3 className="font-semibold text-blue-800">About Activity Reports</h3>
+                      <p className="text-blue-700 mt-1">
+                        Activity reports are submitted by the company supervisor periodically throughout the internship. 
+                        These reports help track the student's progress and performance during the training period.
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}

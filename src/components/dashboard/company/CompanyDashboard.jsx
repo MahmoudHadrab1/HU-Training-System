@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import CompanyNavbar from './CompanyNavbar';
+import CompanyDashboardPostsTab from './CompanyDashboardPostsTab';
 import CreatePostModal from './CreatePostModal';
 import SubmitReportModal from './SubmitReportModal';
 import ViewCVModal from './ViewCVModal';
 import ConfirmationModal from './confirmationModal';
 
-const CompanyDashboard = () => {
+const CompanyDashboard = ({ setActivePage }) => {
   // State management for active tab and data
   const [activeTab, setActiveTab] = useState('posts');
   const [isLoaded, setIsLoaded] = useState(false);
@@ -37,7 +39,7 @@ const CompanyDashboard = () => {
   // State for profile updates
   const [isProfileUpdated, setIsProfileUpdated] = useState(false);
 
-  // Demo data for training posts
+  // Demo data for training posts - Updated with approval status
   const demoTrainingPosts = [
     {
       id: 1,
@@ -45,7 +47,7 @@ const CompanyDashboard = () => {
       location: 'On-site',
       period: '8 Weeks',
       endDate: '2025-08-15',
-      status: 'Active',
+      status: 'Active', // Approved by department head
       applicantsCount: 5,
       description: 'We are looking for a passionate frontend developer intern to join our team and work on exciting web projects using React.js and modern frontend technologies.'
     },
@@ -55,7 +57,7 @@ const CompanyDashboard = () => {
       location: 'Remote',
       period: '6 Weeks',
       endDate: '2025-07-30',
-      status: 'Active',
+      status: 'Active', // Approved by department head
       applicantsCount: 3,
       description: 'This internship focuses on UI/UX design principles, user research, prototyping, and creating engaging user interfaces for web and mobile applications.'
     },
@@ -65,9 +67,19 @@ const CompanyDashboard = () => {
       location: 'Hybrid',
       period: '8 Weeks',
       endDate: '2025-06-20',
-      status: 'Closed',
+      status: 'Closed', // Closed after approval
       applicantsCount: 0,
       description: 'Learn server-side development using Node.js, Express, and MongoDB. Gain practical experience in building RESTful APIs and database integration.'
+    },
+    {
+      id: 4,
+      title: 'DevOps Engineer Training',
+      location: 'Remote',
+      period: '12 Weeks',
+      endDate: '2025-09-30',
+      status: 'Pending Approval', // Waiting for department head approval
+      applicantsCount: 0,
+      description: 'Learn the fundamentals of DevOps practices including CI/CD pipelines, container orchestration, and infrastructure as code.'
     }
   ];
 
@@ -112,7 +124,6 @@ const CompanyDashboard = () => {
     }
   ];
 
-  // Load demo data with animation delay
   useEffect(() => {
     setTimeout(() => {
       setTrainingPosts(demoTrainingPosts);
@@ -120,6 +131,7 @@ const CompanyDashboard = () => {
       setCompletedReports(demoCompletedReports);
       setIsLoaded(true);
     }, 500);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle creating a new training post
@@ -127,37 +139,43 @@ const CompanyDashboard = () => {
     const newPost = {
       id: trainingPosts.length + 1,
       ...postData,
-      status: 'Active',
+      status: 'Pending Approval', // Set initial status to pending approval
       applicantsCount: 0
     };
 
     setTrainingPosts([newPost, ...trainingPosts]);
     
     // Show success notification
-    alert(`Training post "${postData.title}" created successfully!`);
+    alert(`Training post "${postData.title}" has been submitted for approval by the department head.`);
   };
 
   // Handle changing post status (closing or reopening)
-  const handlePostStatusChange = (post, newStatus) => {
-    setConfirmationAction({
-      title: newStatus === 'Active' ? 'Reopen Training Post?' : 'Close Training Post?',
-      message: newStatus === 'Active' 
-        ? `Are you sure you want to reopen "${post.title}"? It will be visible to students again.`
-        : `Are you sure you want to close "${post.title}"? Students won't be able to apply anymore.`,
-      type: newStatus === 'Active' ? 'success' : 'warning',
-      confirmText: newStatus === 'Active' ? 'Reopen' : 'Close',
-      onConfirm: () => {
-        const updatedPosts = trainingPosts.map(p => {
-          if (p.id === post.id) {
-            return { ...p, status: newStatus };
-          }
-          return p;
-        });
-        setTrainingPosts(updatedPosts);
-      }
-    });
-    setIsConfirmationModalOpen(true);
-  };
+const handlePostStatusChange = (post, newStatus) => {
+  // For reopening a post, we need to go through approval again
+  const finalStatus = newStatus === 'Active' ? 'Pending Approval' : newStatus;
+  
+  // Remove this unused line:
+  // const actionVerb = finalStatus === 'Pending Approval' ? 'submit for re-approval' : 'close';
+  
+  setConfirmationAction({
+    title: finalStatus === 'Pending Approval' ? 'Reopen Training Post?' : 'Close Training Post?',
+    message: finalStatus === 'Pending Approval' 
+      ? `Are you sure you want to reopen "${post.title}"? It will be submitted for department head approval again.`
+      : `Are you sure you want to close "${post.title}"? Students won't be able to apply anymore.`,
+    type: finalStatus === 'Pending Approval' ? 'info' : 'warning',
+    confirmText: finalStatus === 'Pending Approval' ? 'Submit for Approval' : 'Close',
+    onConfirm: () => {
+      const updatedPosts = trainingPosts.map(p => {
+        if (p.id === post.id) {
+          return { ...p, status: finalStatus };
+        }
+        return p;
+      });
+      setTrainingPosts(updatedPosts);
+    }
+  });
+  setIsConfirmationModalOpen(true);
+};
 
   // Handle student application approval
   const handleApproveStudent = (application) => {
@@ -254,71 +272,48 @@ const CompanyDashboard = () => {
       reader.readAsDataURL(file);
     }
   };
+  
+  // Handle logout
+  const handleLogout = () => {
+    // In a real app, you would implement actual logout logic here
+    // eslint-disable-next-line no-restricted-globals
+    if (window.confirm("Are you sure you want to logout?")) {
+      alert("You have been logged out");
+      // Navigate to home page or login page
+      if (setActivePage) {
+        setActivePage('home');
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Dashboard Header */}
-      <div className="bg-white shadow-md">
+      {/* Navbar Component */}
+      <CompanyNavbar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        onLogout={handleLogout}
+      />
+      
+      {/* Dashboard Header - Welcome section */}
+      <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-800">Company Dashboard</h1>
-            <button
-              onClick={() => setIsCreatePostModalOpen(true)}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-              </svg>
-              Create Training Post
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      {/* Dashboard Tabs */}
-      <div className="border-b border-gray-200 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
-            <button
-              onClick={() => setActiveTab('posts')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'posts'
-                  ? 'border-red-600 text-red-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } transition-colors duration-200`}
-            >
-              Training Posts
-            </button>
-            <button
-              onClick={() => setActiveTab('applications')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'applications'
-                  ? 'border-red-600 text-red-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } transition-colors duration-200`}
-            >
-              Student Applications
-            </button>
-            <button
-              onClick={() => setActiveTab('reports')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'reports'
-                  ? 'border-red-600 text-red-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } transition-colors duration-200`}
-            >
-              Reports
-            </button>
-            <button
-              onClick={() => setActiveTab('profile')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'profile'
-                  ? 'border-red-600 text-red-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } transition-colors duration-200`}
-            >
-              Company Profile
-            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">Welcome, {companyProfile.companyName}</h1>
+              <p className="text-gray-600 mt-1">Manage your training posts and student applications</p>
+            </div>
+            {activeTab === 'posts' && (
+              <button
+                onClick={() => setIsCreatePostModalOpen(true)}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Create Training Post
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -327,105 +322,12 @@ const CompanyDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Training Posts Tab */}
         {activeTab === 'posts' && (
-          <div className={`space-y-6 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="bg-white shadow rounded-lg overflow-hidden">
-              <div className="flex justify-between items-center px-6 py-4 border-b">
-                <h2 className="text-lg font-semibold text-gray-800">Your Training Posts</h2>
-                <div className="text-sm text-gray-500">
-                  Total: {trainingPosts.length} posts
-                </div>
-              </div>
-
-              {/* Training Posts Table */}
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Title
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Location
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Period
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        End Date
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Applicants
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {trainingPosts.length > 0 ? (
-                      trainingPosts.map((post, index) => (
-                        <tr key={post.id} className="transition-colors hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{post.title}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-500">{post.location}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-500">{post.period}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-500">{post.endDate}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                              ${post.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                              {post.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {post.applicantsCount}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button 
-                              className="text-blue-600 hover:text-blue-900 mr-4"
-                              onClick={() => alert(`Edit functionality for post "${post.title}" would be implemented here`)}
-                            >
-                              Edit
-                            </button>
-                            {post.status === 'Active' ? (
-                              <button 
-                                className="text-red-600 hover:text-red-900"
-                                onClick={() => handlePostStatusChange(post, 'Closed')}
-                              >
-                                Close
-                              </button>
-                            ) : (
-                              <button 
-                                className="text-green-600 hover:text-green-900"
-                                onClick={() => handlePostStatusChange(post, 'Active')}
-                              >
-                                Reopen
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
-                          No training posts found. Create your first training post to get started.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+          <CompanyDashboardPostsTab
+            trainingPosts={trainingPosts}
+            isLoaded={isLoaded}
+            handlePostStatusChange={handlePostStatusChange}
+            setIsCreatePostModalOpen={setIsCreatePostModalOpen}
+          />
         )}
 
         {/* Student Applications Tab */}

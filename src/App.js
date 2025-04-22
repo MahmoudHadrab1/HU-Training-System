@@ -9,10 +9,9 @@ import HowItWorks from './components/how-it-works/HowItWorks';
 
 // Import pages from their new locations
 import AboutPage from './pages/home/AboutPage.jsx';
-import CompanyPage from './pages/company/CompanyPage.jsx';
-import DepartmentHeadPage from './pages/department/DepartmentHeadPage.jsx';
 import LoginPageStudent from './pages/auth/student/LoginPageStudent.jsx';
-import StudentPage from './pages/student/StudentPage.jsx';
+
+
 import CompanyRegistration from './pages/auth/company/CompanyRegistration.jsx';
 import CompanyProfileCreation from './pages/auth/company/CompanyProfileCreation.jsx';
 import CompanyLoginPage from './pages/auth/company/CompanyLoginPage.jsx';
@@ -52,12 +51,6 @@ function App() {
         );
       case 'about':
         return <AboutPage />;
-      case 'company':
-        return <CompanyPage />;
-      case 'student':
-        return <StudentPage />;
-      case 'department':
-        return <DepartmentHeadPage />;
       case 'login':
         return <LoginPageStudent />;
       case 'studentLogin':
@@ -91,7 +84,10 @@ function App() {
   };
 
   const showFooter = activePage === 'home';
-  const isDashboardPage = activePage === 'departmentDashboard' || activePage === 'companyDashboard';
+  const isDashboardPage =
+  activePage === 'departmentDashboard' ||
+  activePage === 'companyDashboard' ||
+  activePage === 'studentDashboard';
 
   return (
     <div className="min-h-screen font-sans text-gray-800 flex flex-col">

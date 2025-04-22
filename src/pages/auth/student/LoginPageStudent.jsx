@@ -96,19 +96,19 @@ export default function LoginPageStudent({ setActivePage }) {
   };
 
   // Handle forgot password
-  const handleForgotPassword = () => {
+  //const handleForgotPassword = () => {
     // Replace with actual forgot password functionality
-    alert("Forgot password functionality will be implemented here");
-  };
+   // alert("Forgot password functionality will be implemented here");
+  //};
 
   // Debug function to help with login issues (remove in production)
-  const debugLogin = () => {
-    console.log("Debug: Setting test credentials");
-    setFormData({
-      studentId: "123456",
-      password: "password"
-    });
-  };
+  //const debugLogin = () => {
+   // console.log("Debug: Setting test credentials");
+   //setFormData({
+   //   studentId: "123456",
+   //   password: "password"
+  //  });
+  //};
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center relative bg-gradient-to-br from-blue-50 to-red-50 overflow-hidden">
@@ -259,13 +259,7 @@ export default function LoginPageStudent({ setActivePage }) {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                   Password
                 </label>
-                <button 
-                  type="button"
-                  onClick={handleForgotPassword}
-                  className="text-sm text-gray-600 hover:text-red-600 focus:outline-none transition-colors"
-                >
-                  Forgot password?
-                </button>
+                
               </div>
               <div className="relative">
                 <input
@@ -308,22 +302,7 @@ export default function LoginPageStudent({ setActivePage }) {
               </div>
             </div>
 
-            {/* Remember Me Checkbox */}
-            <div className={`flex items-center transition-all duration-500 delay-900
-              ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
-            >
-              <input
-                id="rememberMe"
-                name="rememberMe"
-                type="checkbox"
-                checked={rememberMe}
-                onChange={() => setRememberMe(!rememberMe)}
-                className="h-4 w-4 text-red-500 focus:ring-red-400 border-gray-300 rounded cursor-pointer"
-              />
-              <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700 cursor-pointer">
-                Remember me
-              </label>
-            </div>
+            
 
             {/* Error Message */}
             <div className={`transition-all duration-300 h-6 ${error ? 'opacity-100' : 'opacity-0'}`}>
@@ -362,45 +341,6 @@ export default function LoginPageStudent({ setActivePage }) {
             </button>
           </form>
 
-          {/* Registration Link */}
-          <div className={`text-center mt-6 transition-all duration-500 delay-1100
-            ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-          >
-            <p className="text-sm text-gray-600">
-              Don't have an account yet?{" "}
-              <button
-                type="button" 
-                onClick={() => setActivePage('studentRegister')}
-                className="text-red-600 font-semibold hover:text-red-700 hover:underline focus:outline-none transition-colors"
-              >
-                Sign Up
-              </button>
-            </p>
-          </div>
-          
-          {/* Additional Help */}
-          <div className={`text-center mt-4 transition-all duration-500 delay-1200
-            ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-          >
-            <button 
-              type="button"
-              onClick={() => alert('Contact administrator feature not yet implemented')}
-              className="text-sm text-gray-600 hover:text-gray-800 focus:outline-none"
-            >
-              Need help? Contact your department
-            </button>
-          </div>
-
-          {/* Auto-fill button for testing (hidden in production) */}
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={debugLogin}
-              className="text-xs text-gray-400 hover:text-gray-600"
-            >
-              Auto-fill test credentials
-            </button>
-          </div>
         </div>
       </div>
       

@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const LoginRouter = ({ setActivePage }) => {
+const LoginRouter = () => {
   const [selectedOption, setSelectedOption] = useState('student');
+  const navigate = useNavigate();
 
   // Function to handle navigation to specific login page
   const navigateToLogin = () => {
     if (selectedOption === 'student') {
-      setActivePage('studentLogin');
+      navigate('/login/student');
     } else if (selectedOption === 'company') {
-      setActivePage('companyLogin');
+      navigate('/login/company');
     } else if (selectedOption === 'department') {
-      setActivePage('departmentLogin');
+      navigate('/login/department');
     }
   };
 

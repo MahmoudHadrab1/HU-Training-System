@@ -1,5 +1,5 @@
 import React from "react";
-import HowItWorks from "../how-it-works/HowItWorks"; // Assuming HowItWorks handles tabs internally
+import HowItWorks from "../../components/how-it-works/HowItWorks"; // Assuming HowItWorks handles tabs internally
 
 const HowItWorksPage = () => {
   return (

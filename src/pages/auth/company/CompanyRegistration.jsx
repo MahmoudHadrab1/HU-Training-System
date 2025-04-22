@@ -1,6 +1,5 @@
 // CompanyRegistration.jsx
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Make sure to install axios
 
 const CompanyRegistration = ({ setActivePage }) => {
   const [idNumber, setIdNumber] = useState('');
@@ -13,6 +12,9 @@ const CompanyRegistration = ({ setActivePage }) => {
   useEffect(() => {
     // Trigger entrance animation after component mounts
     setTimeout(() => setAnimateIn(true), 100);
+    
+    // Add demo ID hint for convenience
+    console.log("For testing: Use the demo ID '123456789'");
   }, []);
 
   const handleIdChange = (e) => {
@@ -20,7 +22,7 @@ const CompanyRegistration = ({ setActivePage }) => {
     setShowError(false);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     
     // Basic validation
@@ -41,61 +43,29 @@ const CompanyRegistration = ({ setActivePage }) => {
     setShowVerifying(true);
     setIsLoading(true);
     
-    try {
-      // First step: Verify if the company ID exists in the system
-      const verificationResponse = await axios.post('/api/verify-company', { nationalId: idNumber });
-      
-      // If company ID exists, check if the company is trustworthy
-      if (verificationResponse.data.verified) {
-        try {
-          // Second step: Check company trustworthiness in the fake system
-          const trustworthinessResponse = await axios.post('/api/check-trustworthiness', { 
-            nationalId: idNumber 
-          });
-          
-          if (trustworthinessResponse.data.isTrustworthy) {
-            // Company is trustworthy, proceed to account creation
-            setTimeout(() => {
-              setShowVerifying(false);
-              setIsLoading(false);
-              setActivePage('profileCreation');
-            }, 1000);
-          } else {
-            // Company exists but is not trustworthy
-            setTimeout(() => {
-              setShowVerifying(false);
-              setIsLoading(false);
-              setErrorMessage('Company does not meet our trustworthiness criteria');
-              setShowError(true);
-            }, 1000);
-          }
-        } catch (trustErr) {
-          // Handle trustworthiness check errors
-          setTimeout(() => {
-            setShowVerifying(false);
-            setIsLoading(false);
-            setErrorMessage(trustErr.response?.data?.message || 'Trustworthiness verification failed');
-            setShowError(true);
-          }, 1000);
-        }
-      } else {
-        // Company ID does not exist in the system
-        setTimeout(() => {
-          setShowVerifying(false);
-          setIsLoading(false);
-          setErrorMessage('Company not verified by the Ministry of Industry and Trade');
-          setShowError(true);
-        }, 1000);
-      }
-    } catch (err) {
-      // Handle initial verification API errors
+    // Check for demo ID - in a real app you would verify with an API
+    if (idNumber === '123456789') {
+      // Demo ID always works
       setTimeout(() => {
         setShowVerifying(false);
         setIsLoading(false);
-        setErrorMessage(err.response?.data?.message || 'Verification failed');
+        setActivePage('profileCreation');
+      }, 1500);
+    } else {
+      // For non-demo IDs, show error after verification attempt
+      setTimeout(() => {
+        setShowVerifying(false);
+        setIsLoading(false);
+        setErrorMessage('Company not verified. Please use the demo ID for testing.');
         setShowError(true);
-      }, 1000);
+      }, 1500);
     }
+  };
+
+  // Helper function to fill with demo ID
+  const fillDemoId = () => {
+    setIdNumber('123456789');
+    setShowError(false);
   };
 
   return (
@@ -150,9 +120,19 @@ const CompanyRegistration = ({ setActivePage }) => {
               className={`w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-4 rounded-md transition duration-300 transform hover:translate-y-[-2px] hover:shadow-lg ${animateIn ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
               style={{ transitionDelay: '900ms' }}
             >
-              Regist Now
+              Register Now
             </button>
           </form>
+          
+          {/* Helper button for demo ID - this would be removed in production */}
+          <div className="mt-4 text-center">
+            <button
+              onClick={fillDemoId}
+              className="text-xs text-gray-400 hover:text-gray-600 focus:outline-none"
+            >
+              Use demo ID (123456789)
+            </button>
+          </div>
         </div>
         
         {/* Verification Modal */}
@@ -162,7 +142,7 @@ const CompanyRegistration = ({ setActivePage }) => {
               <div className="flex justify-between items-start">
                 <div className="w-full text-center">
                   <h3 className="text-xl font-semibold mb-4">Thank you for submitting your request</h3>
-                  <p className="mb-4">Please wait a moment while we verify your company information and check trustworthiness</p>
+                  <p className="mb-4">Please wait a moment while we verify your company information</p>
                   <div className="flex justify-center items-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800"></div>
                   </div>

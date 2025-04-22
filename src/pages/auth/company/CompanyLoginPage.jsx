@@ -1,9 +1,6 @@
-// CompanyLoginPage.jsx
 import React, { useState, useEffect } from "react";
-// Import company login image - you'll need to add this to your assets folder
-import companyLoginImg from "../../../assets/images/company_login_img.jpg";
 
-export default function CompanyLoginPage({ setActivePage }) {
+const CompanyLoginPage = ({ setActivePage }) => {
   // State for animation, form fields, and error handling
   const [isLoaded, setIsLoaded] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -23,9 +20,13 @@ export default function CompanyLoginPage({ setActivePage }) {
     // Check for saved credentials if "remember me" was previously used
     const savedCredentials = localStorage.getItem('companyCredentials');
     if (savedCredentials) {
-      const { companyId, rememberMe } = JSON.parse(savedCredentials);
-      setFormData(prev => ({ ...prev, companyId }));
-      setRememberMe(rememberMe);
+      try {
+        const { companyId, rememberMe } = JSON.parse(savedCredentials);
+        setFormData(prev => ({ ...prev, companyId }));
+        setRememberMe(rememberMe);
+      } catch (e) {
+        console.error("Error parsing saved credentials");
+      }
     }
   }, []);
 
@@ -70,7 +71,6 @@ export default function CompanyLoginPage({ setActivePage }) {
     // Simulate authentication (replace with actual API call)
     setTimeout(() => {
       // For demo purposes - simplified authentication
-      // In a real app, you would check credentials with your backend
       if (formData.companyId === "12345" && formData.password === "password") {
         // Successful login - redirect to company dashboard
         setActivePage('companyDashboard');
@@ -81,65 +81,67 @@ export default function CompanyLoginPage({ setActivePage }) {
     }, 800);
   };
 
-  // Handle "forgot password" click
-  const handleForgotPassword = () => {
-    // Replace with your actual forgot password functionality
-    alert("Forgot password functionality will be implemented here");
-  };
-
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-b from-gray-200 to-gray-300 py-12 px-4 sm:px-6 lg:px-8">
-      <div 
-        className={`flex w-full max-w-4xl flex-col md:flex-row shadow-xl rounded-2xl overflow-hidden bg-white
-          transition-all duration-700 ${isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-      >
-        {/* Left Side - Image (hidden on small screens) */}
-        <div className="hidden md:block md:w-1/2 bg-gray-700 relative overflow-hidden">
-          {/* Overlay gradient for better text visibility */}
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-800/70 to-gray-900/30 z-10"></div>
-          
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      {/* Grid background with larger squares and more visible gray lines */}
+      <div className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: "linear-gradient(to right, rgba(180, 180, 180, 0.3) 1px, transparent 1px), linear-gradient(to bottom, rgba(180, 180, 180, 0.3) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+          backgroundPosition: "0 0"
+        }}>
+      </div>
+
+      <div className={`w-full max-w-4xl flex flex-col md:flex-row shadow-2xl rounded-xl overflow-hidden bg-white
+        transition-all duration-700 ${isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+        
+        {/* Left Side - Illustration (hidden on small screens) */}
+        <div className="w-1/2 bg-white hidden md:flex flex-col items-center justify-center p-6 bg-gray-100 overflow-hidden">
           <div 
-            className={`relative z-20 flex flex-col h-full p-8 text-white justify-center
-              transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'}`}
+            className={`transition-all duration-1000 ease-in-out w-full h-full
+              ${isLoaded ? 'translate-x-0 scale-100 opacity-100' : '-translate-x-full scale-90 opacity-0'}`}
           >
-            <h2 className="text-3xl font-bold mb-6">Welcome Back!</h2>
-            <p className="text-lg text-gray-200 mb-8">
-              Sign in to access your company dashboard and manage your internship offerings.
-            </p>
-            <ul className="space-y-3">
-              {['Post new internship opportunities', 'Review student applications', 'Track ongoing internships', 'Submit evaluation reports'].map((item, index) => (
-                <li 
-                  key={index} 
-                  className="flex items-center opacity-0 animate-fade-in"
-                  style={{ animationDelay: `${800 + index * 200}ms`, animationFillMode: 'forwards' }}
-                >
-                  <svg className="w-5 h-5 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  {item}
-                </li>
-              ))}
-            </ul>
+            <div className="relative h-full flex flex-col items-center justify-center">
+              {/* Blob animations using Tailwind */}
+              <div className="absolute -top-16 -left-16 w-64 h-64 bg-gray-100 rounded-full mix-blend-multiply opacity-70 filter blur-2xl animate-blob"></div>
+              <div className="absolute top-40 -right-16 w-48 h-48 bg-gray-200 rounded-full mix-blend-multiply opacity-70 filter blur-2xl animate-blob animation-delay-4000"></div>
+              <div className="absolute -bottom-16 -right-16 w-64 h-64 bg-gray-300 rounded-full mix-blend-multiply opacity-70 filter blur-2xl animate-blob animation-delay-2000"></div>
+              <div className="absolute bottom-40 -left-16 w-48 h-48 bg-gray-200 rounded-full mix-blend-multiply opacity-70 filter blur-2xl animate-blob animation-delay-6000"></div>
+              
+              {/* Company image */}
+              <img 
+                src="https://img.freepik.com/free-vector/business-team-discussing-ideas-startup_74855-4380.jpg"
+                alt="Illustrated business team working together"
+                className="w-full h-auto object-cover rounded-lg shadow-lg relative z-10 transition-transform duration-500 hover:scale-105 animate-float"
+              />
+              <div className="mt-8 text-center relative z-10">
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">Welcome Back, Company!</h2>
+                <p className="text-gray-600">Access your company portal to manage your internship offerings and connect with students.</p>
+                
+                <div className="mt-6 space-y-3">
+                  {['Post internship opportunities', 'Review student applications', 'Manage training programs', 'Submit evaluation reports'].map((feature, index) => (
+                    <div 
+                      key={index}
+                      className="flex items-center opacity-0 animate-fade-in"
+                      style={{ animationDelay: `${800 + index * 200}ms`, animationFillMode: 'forwards' }}
+                    >
+                      <svg className="w-5 h-5 mr-2 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-gray-700">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-          
-          {/* Background image with parallax effect */}
-          <img 
-            src={companyLoginImg} 
-            alt="Company Login" 
-            className={`absolute top-0 left-0 w-full h-full object-cover transition-transform duration-700 ease-in-out scale-110
-              ${isLoaded ? 'translate-x-0 scale-100' : '-translate-x-full scale-110'}`}
-            style={{ opacity: 0.6 }}
-          />
         </div>
 
         {/* Right Side - Login Form */}
-        <div className={`w-full md:w-1/2 bg-white p-8 md:p-10 flex flex-col
-          transition-all duration-500 delay-300 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'}`}>
-          
-          {/* Company Icon and Brand */}
-          <div className={`flex flex-col items-center justify-center mb-8 transition-transform duration-700 delay-500 
-            ${isLoaded ? 'translate-y-0' : 'translate-y-10'}`}>
-            <div className="w-20 h-20 bg-gray-600 rounded-full flex items-center justify-center mb-4 shadow-lg">
+        <div className="w-full md:w-1/2 bg-white p-8 md:p-10 flex flex-col">
+          {/* User Icon and Header */}
+          <div className="flex flex-col items-center mb-8">
+            <div className="w-20 h-20 bg-gray-600 rounded-full flex items-center justify-center mb-4 shadow-lg transform transition-transform hover:scale-105 duration-300">
               <svg
                 className="w-12 h-12 text-white"
                 xmlns="http://www.w3.org/2000/svg"
@@ -149,15 +151,14 @@ export default function CompanyLoginPage({ setActivePage }) {
                 <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-gray-800">HU-Tech Train</h1>
-            <p className="text-gray-600 mt-1">Company Portal</p>
+            <h1 className="text-2xl font-bold text-gray-800 mb-1">Company Login</h1>
+            <p className="text-gray-600 text-center">Sign in to access your company portal</p>
           </div>
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-5 w-full">
-            {/* ID Input */}
-            <div className={`relative transition-all duration-500 delay-700
-              ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
+            {/* Company ID Input */}
+            <div className="relative">
               <label htmlFor="companyId" className="block text-sm font-medium text-gray-700 mb-1 ml-1">
                 Company ID
               </label>
@@ -168,9 +169,7 @@ export default function CompanyLoginPage({ setActivePage }) {
                   value={formData.companyId}
                   onChange={handleInputChange}
                   placeholder="Enter your company ID"
-                  className={`w-full py-3 px-4 pl-11 bg-gray-50 border ${error && !formData.companyId ? 'border-red-400' : 'border-gray-300'} 
-                    rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent 
-                    transition-all duration-300`}
+                  className="w-full py-3 px-4 pl-11 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-300"
                 />
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
                   <svg
@@ -186,16 +185,14 @@ export default function CompanyLoginPage({ setActivePage }) {
             </div>
 
             {/* Password Input */}
-            <div className={`relative transition-all duration-500 delay-800
-              ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
+            <div className="relative">
               <div className="flex justify-between items-center mb-1 ml-1">
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                   Password
                 </label>
                 <button 
                   type="button"
-                  onClick={handleForgotPassword}
-                  className="text-sm text-gray-600 hover:text-gray-800 focus:outline-none"
+                  className="text-sm text-gray-600 hover:text-gray-800 focus:outline-none transition-colors"
                 >
                   Forgot password?
                 </button>
@@ -207,9 +204,7 @@ export default function CompanyLoginPage({ setActivePage }) {
                   value={formData.password}
                   onChange={handleInputChange}
                   placeholder="Enter your password"
-                  className={`w-full py-3 px-4 pl-11 bg-gray-50 border ${error && !formData.password ? 'border-red-400' : 'border-gray-300'} 
-                    rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent 
-                    transition-all duration-300`}
+                  className="w-full py-3 px-4 pl-11 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-300"
                 />
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
                   <svg
@@ -218,7 +213,7 @@ export default function CompanyLoginPage({ setActivePage }) {
                     viewBox="0 0 24 24"
                     fill="currentColor"
                   >
-                    <path d="M12 13a1 1 0 100-2 1 1 0 000 2zm-8-6h2V5h12v2h2V5a2 2 0 00-2-2H6a2 2 0 00-2 2v2zm15 3h-1v8a2 2 0 01-2 2H8a2 2 0 01-2-2v-8H5a1 1 0 110-2h14a1 1 0 110 2z" />
+                    <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z" />
                   </svg>
                 </div>
                 <div 
@@ -241,21 +236,6 @@ export default function CompanyLoginPage({ setActivePage }) {
               </div>
             </div>
 
-            {/* Remember Me Checkbox */}
-            <div className={`flex items-center transition-all duration-500 delay-900
-              ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
-              <input
-                id="rememberMe"
-                name="rememberMe"
-                type="checkbox"
-                checked={rememberMe}
-                onChange={() => setRememberMe(!rememberMe)}
-                className="h-4 w-4 text-gray-600 focus:ring-gray-500 border-gray-300 rounded cursor-pointer"
-              />
-              <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700 cursor-pointer">
-                Remember me
-              </label>
-            </div>
 
             {/* Error Message */}
             <div className={`transition-all duration-300 h-6 ${error ? 'opacity-100' : 'opacity-0'}`}>
@@ -273,10 +253,7 @@ export default function CompanyLoginPage({ setActivePage }) {
             <button 
               type="submit"
               disabled={isSubmitting}
-              className={`w-full py-3 px-4 flex justify-center items-center bg-gray-700 text-white font-medium rounded-lg shadow-md transform transition-all duration-500 delay-1000
-                hover:bg-gray-800 active:scale-98 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2
-                disabled:opacity-70 disabled:cursor-not-allowed
-                ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
+              className="w-full py-3 px-4 flex justify-center items-center bg-gray-700 text-white font-medium rounded-lg shadow-md transform transition-all duration-300 hover:bg-gray-800 active:scale-95 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
@@ -294,34 +271,66 @@ export default function CompanyLoginPage({ setActivePage }) {
             </button>
           </form>
 
-          {/* Register Account Link */}
-          <div className={`text-center mt-6 transition-all duration-500 delay-1100
-            ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+          {/* Registration Link */}
+          <div className="text-center mt-6">
             <p className="text-sm text-gray-600">
               Don't have an account yet?{" "}
               <button
                 type="button" 
                 onClick={() => setActivePage('register')}
-                className="text-gray-800 font-semibold hover:text-gray-900 hover:underline focus:outline-none transition-colors"
+                className="text-gray-700 font-semibold hover:text-gray-900 hover:underline focus:outline-none transition-colors"
               >
                 Register Now
               </button>
             </p>
           </div>
-          
-          {/* Additional Help */}
-          <div className={`text-center mt-4 transition-all duration-500 delay-1200
-            ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-            <button 
-              type="button"
-              onClick={() => alert('Contact administrator feature not yet implemented')}
-              className="text-sm text-gray-600 hover:text-gray-800 focus:outline-none"
-            >
-              Need help? Contact administrator
-            </button>
-          </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes blob {
+          0% { transform: scale(1); }
+          33% { transform: scale(1.1) translate(10px, -10px); }
+          66% { transform: scale(0.9) translate(-10px, 10px); }
+          100% { transform: scale(1); }
+        }
+        
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+        
+        .animate-blob {
+          animation: blob 7s infinite alternate;
+        }
+        
+        .animate-fade-in {
+          animation: fade-in 0.5s forwards;
+        }
+        
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+        
+        .animation-delay-6000 {
+          animation-delay: 6s;
+        }
+      `}</style>
     </div>
   );
-}
+};
+
+export default CompanyLoginPage;
