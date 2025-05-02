@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-// Department head/admin related background image
-const backgroundImage = "https://images.unsplash.com/photo-1606761568499-6d2451b23c66?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80";
-
-export default function LoginPageDepartmentHead({ setActivePage }) {
+export default function LoginPageDepartmentHead() {
+  const navigate = useNavigate();
+  
   // Animation and form states
   const [isLoaded, setIsLoaded] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -19,6 +19,19 @@ export default function LoginPageDepartmentHead({ setActivePage }) {
     setTimeout(() => {
       setIsLoaded(true);
     }, 100);
+    
+    // Check for saved credentials
+    const savedCredentials = localStorage.getItem('departmentCredentials');
+    if (savedCredentials) {
+      try {
+        const { departmentId, rememberMe } = JSON.parse(savedCredentials);
+        setFormData(prev => ({ ...prev, departmentId }));
+        setRememberMe(rememberMe);
+      } catch (e) {
+        console.error("Error parsing saved credentials");
+        localStorage.removeItem('departmentCredentials');
+      }
+    }
   }, []);
 
   const handleInputChange = (e) => {
@@ -48,14 +61,30 @@ export default function LoginPageDepartmentHead({ setActivePage }) {
     
     setIsSubmitting(true);
     
+    // Save credentials if "remember me" is checked
+    if (rememberMe) {
+      localStorage.setItem('departmentCredentials', JSON.stringify({
+        departmentId: formData.departmentId,
+        rememberMe
+      }));
+    } else {
+      localStorage.removeItem('departmentCredentials');
+    }
+    
     // Simulate authentication (replace with actual API call)
     setTimeout(() => {
-      // For demo purposes - always successful login
-      // In a real app, you would verify credentials with your backend
+      // For demo purposes - always successful login with test credentials
+      if (formData.departmentId === "123456" && formData.password === "password") {
+        // Set authentication state
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('userRole', 'department');
+        
+        // Navigate to department head dashboard
+        navigate('/dashboard/department');
+      } else {
+        setError("Invalid credentials. Please check your ID and password.");
+      }
       setIsSubmitting(false);
-      
-      // Navigate to department head dashboard
-      setActivePage('departmentDashboard');
     }, 800);
   };
 
@@ -64,7 +93,7 @@ export default function LoginPageDepartmentHead({ setActivePage }) {
       {/* Left Panel - Background Image & Info */}
       <div 
         className="hidden md:flex w-1/2 bg-cover bg-center relative"
-        style={{ backgroundImage: `url(${backgroundImage})` }}
+        style={{ backgroundImage: `url(https://images.unsplash.com/photo-1606761568499-6d2451b23c66?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80)` }}
       >
         <div className="absolute inset-0 bg-gray-800 bg-opacity-70 flex flex-col justify-center p-12">
           <div className={`transition-all duration-1000 delay-300 ${isLoaded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>

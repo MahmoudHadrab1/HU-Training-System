@@ -1,11 +1,28 @@
 import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
-const Footer = ({ setActivePage, setActiveTab, activeTab }) => {
+const Footer = ({ activeTab }) => {
+  const navigate = useNavigate();
+
+  // Handle navigation
   const handleNavClick = (page) => {
-    if (setActivePage) {
-      setActivePage(page);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    // Navigate and scroll to top
+    navigate(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Handle How It Works scroll with tab selection
+  const handleHowItWorksClick = () => {
+    // First navigate to home page if not already there
+    navigate('/');
+    
+    // Then scroll to the How It Works section
+    setTimeout(() => {
+      const howItWorksSection = document.getElementById("how-it-works");
+      if (howItWorksSection) {
+        howItWorksSection.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 100);
   };
 
   return (
@@ -17,7 +34,7 @@ const Footer = ({ setActivePage, setActiveTab, activeTab }) => {
           <div className="col-span-1 md:col-span-1">
             <div 
               className="flex items-center mb-4 cursor-pointer"
-              onClick={() => handleNavClick('home')}
+              onClick={() => handleNavClick('/')}
             >
               <h2 className="text-2xl font-bold">
                 <span className="text-red-600 mr-1">HU-</span>
@@ -52,33 +69,19 @@ const Footer = ({ setActivePage, setActiveTab, activeTab }) => {
             <h3 className="text-lg font-semibold mb-4 border-b border-gray-700 pb-2">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <button 
-                  onClick={() => handleNavClick('home')}
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
+                <Link to="/" className="text-gray-400 hover:text-white transition-colors">
                   Home
-                </button>
+                </Link>
               </li>
               <li>
-                <button 
-                  onClick={() => handleNavClick('about')}
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
+                <Link to="/about" className="text-gray-400 hover:text-white transition-colors">
                   About
-                </button>
+                </Link>
               </li>
               <li>
                 <button 
                   className="text-gray-400 hover:text-white transition-colors"
-                  onClick={() => {
-                    handleNavClick('home');
-                    setTimeout(() => {
-                      const howItWorksSection = document.getElementById("how-it-works");
-                      if (howItWorksSection) {
-                        howItWorksSection.scrollIntoView({ behavior: "smooth" });
-                      }
-                    }, 100);
-                  }}
+                  onClick={handleHowItWorksClick}
                 >
                   How It Works
                 </button>
@@ -91,36 +94,36 @@ const Footer = ({ setActivePage, setActiveTab, activeTab }) => {
             <h3 className="text-lg font-semibold mb-4 border-b border-gray-700 pb-2">For Users</h3>
             <ul className="space-y-2">
               <li>
-                <button 
-                  onClick={() => handleNavClick('studentLogin')}
+                <Link 
+                  to="/login/student" 
                   className="text-gray-400 hover:text-white transition-colors"
                 >
                   Students
-                </button>
+                </Link>
               </li>
               <li>
-                <button 
-                  onClick={() => handleNavClick('companyLogin')}
+                <Link 
+                  to="/login/company" 
                   className="text-gray-400 hover:text-white transition-colors"
                 >
                   Companies
-                </button>
+                </Link>
               </li>
               <li>
-                <button 
-                  onClick={() => handleNavClick('departmentLogin')}
+                <Link 
+                  to="/login/department" 
                   className="text-gray-400 hover:text-white transition-colors"
                 >
                   Department Head
-                </button>
+                </Link>
               </li>
               <li>
-                <button 
-                  onClick={() => handleNavClick('register')}
+                <Link 
+                  to="/register" 
                   className="text-gray-400 hover:text-white transition-colors"
                 >
                   Register
-                </button>
+                </Link>
               </li>
             </ul>
           </div>
@@ -129,13 +132,6 @@ const Footer = ({ setActivePage, setActiveTab, activeTab }) => {
           <div className="col-span-1">
             <h3 className="text-lg font-semibold mb-4 border-b border-gray-700 pb-2">Contact Us</h3>
             <ul className="space-y-3">
-              <li className="flex items-start">
-                <svg className="w-5 h-5 text-gray-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span className="text-gray-400">Hashemite University, Zarqa, Jordan</span>
-              </li>
               <li className="flex items-start">
                 <svg className="w-5 h-5 text-gray-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />

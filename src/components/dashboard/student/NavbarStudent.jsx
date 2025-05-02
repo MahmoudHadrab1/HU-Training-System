@@ -13,13 +13,12 @@ const Navbar = ({ activePage, setActivePage, onLogout }) => {
             <span className="text-red-600 mr-1">HU-</span>Tech Train
           </div>
           
-          {/* Logout Button */}
           <button
-            onClick={onLogout}
-            className="flex items-center bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-md text-gray-700 transition-colors"
-          >
-            <LogOut className="mr-2 w-4 h-4" /> Log Out
-          </button>
+                   onClick={onLogout}
+                   className="flex items-center text-gray-700 hover:text-gray-900 font-medium transition-colors"
+                 >
+                   <LogOut className="mr-2 w-5 h-5" /> Log Out
+                 </button>
         </div>
         
         {/* Navigation Links - Company Style */}

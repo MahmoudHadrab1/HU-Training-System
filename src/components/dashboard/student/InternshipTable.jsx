@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Check } from "lucide-react";
 
 const getStatusBadgeColor = (status) => {
@@ -18,26 +18,52 @@ const InternshipTable = ({ applications }) => {
   const [filter, setFilter] = useState('all');
   const [submittedApplicationId, setSubmittedApplicationId] = useState(null);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [uniqueApplications, setUniqueApplications] = useState([]);
   
-  // Filter applications based on status
+  // Process applications to ensure uniqueness by ID
+  useEffect(() => {
+    // Create a map to track applications by ID
+    const appMap = new Map();
+    
+    // Add each application to the map, with the ID as key
+    applications.forEach(app => {
+      // Only add if not already in map
+      if (!appMap.has(app.id)) {
+        appMap.set(app.id, app);
+      }
+    });
+    
+    // Convert map values back to array
+    setUniqueApplications(Array.from(appMap.values()));
+    
+    // Check localStorage for previously submitted application
+   // const savedSubmittedId = localStorage.getItem('submittedApplicationId');
+   // if (savedSubmittedId) {
+   //   setSubmittedApplicationId(parseInt(savedSubmittedId));
+  //  }
+  }, [applications]);
+  
+  // Filter applications based on status (case-insensitive)
   const filteredApplications = filter === 'all' 
-    ? applications 
-    : applications.filter(app => app.status.toLowerCase() === filter);
+    ? uniqueApplications 
+    : uniqueApplications.filter(app => 
+        app.status.toLowerCase() === filter.toLowerCase()
+      );
 
   const handleSendToDepartmentHead = (applicationId) => {
+    // Save the submitted application ID to localStorage
+    localStorage.setItem('submittedApplicationId', applicationId.toString());
     setSubmittedApplicationId(applicationId);
     setShowConfirmationModal(true);
-   // document.body.classList.add('overflow-hidden');
     
-    // Auto-hide modal after 3 seconds
+    // Auto-hide modal after 5 seconds
     setTimeout(() => {
       setShowConfirmationModal(false);
-     // document.body.classList.remove('overflow-hidden');
     }, 5000);
   };
   
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 relative">
       {/* Filter */}
       <div className="mb-4">
         <label className="block text-gray-700 mb-2">Filter by status:</label>
@@ -86,6 +112,7 @@ const InternshipTable = ({ applications }) => {
               <th className="text-left p-4 font-medium text-gray-700">Training Title</th>
               <th className="text-left p-4 font-medium text-gray-700">Date Applied</th>
               <th className="text-left p-4 font-medium text-gray-700">Status</th>
+              <th className="text-left p-4 font-medium text-gray-700">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -111,15 +138,14 @@ const InternshipTable = ({ applications }) => {
                           <Check className="w-4 h-4 mr-1" />
                           Sent
                         </span>
+                      ) : submittedApplicationId !== null ? (
+                        <span className="text-gray-400 text-sm">
+                          Already sent another application
+                        </span>
                       ) : (
                         <button
                           onClick={() => handleSendToDepartmentHead(app.id)}
-                          disabled={submittedApplicationId !== null}
-                          className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                            submittedApplicationId !== null
-                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                              : 'bg-green-600 text-white hover:bg-green-700'
-                          }`}
+                          className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition-colors"
                         >
                           Send to Department Head
                         </button>
@@ -139,16 +165,24 @@ const InternshipTable = ({ applications }) => {
         </table>
       </div>
       
+      {/* Empty state message */}
       {filteredApplications.length === 0 && (
         <p className="text-center text-gray-500 py-4">
           No applications match your filter criteria.
         </p>
       )}
 
-      {/* Confirmation Modal */}
-      {showConfirmationModal && (
-    <div className="fixed inset-0 grid place-items-center z-50 animate-fade-in">
+      {/* Information message about sending to department head */}
+      {submittedApplicationId && (
+        <div className="mt-4 bg-blue-50 border-l-4 border-blue-500 p-4 text-blue-700">
+          <p className="font-medium">Note:</p>
+          <p>You can only send one approved internship to the department head for final approval.</p>
+        </div>
+      )}
 
+      {/* Confirmation Modal - Fixed position overlay */}
+      {showConfirmationModal && (
+        <div className="fixed inset-0 grid place-items-center z-50 animate-fade-in">
 
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-8 transform transition-all duration-300 scale-100 opacity-100 animate-scale-in">
             <div className="mb-6">

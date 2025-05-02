@@ -1,17 +1,13 @@
+// src/components/common/ScrollToTop.jsx
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 
 /**
- * ScrollToTop component to handle scrolling to top when route changes
- * This is important because React Router doesn't automatically scroll
- * the page to the top on navigation like traditional page navigation does
+ * ScrollToTop component to automatically scroll to top on page changes
  */
 function ScrollToTop() {
-  const { pathname } = useLocation();
-
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [pathname]);
+  }, []);
 
   return null;
 }

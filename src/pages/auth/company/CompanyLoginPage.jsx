@@ -1,86 +1,83 @@
-import React, { useState, useEffect } from "react";
+// ✅ Final version using React Router
+// This assumes your App is using <Routes><Route /></Routes> based routing.
 
-const CompanyLoginPage = ({ setActivePage }) => {
-  // State for animation, form fields, and error handling
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import ForgotPasswordModal from "../../../components/auth/ForgotPasswordModal";
+import AuthService from "../../../services/authService";
+
+const CompanyLoginPage = () => {
+  const navigate = useNavigate();
+
   const [isLoaded, setIsLoaded] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    companyId: '',
-    password: ''
-  });
+  const [formData, setFormData] = useState({ nationalId: '', password: '' });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  
-  // Set loaded state after component mounts to trigger animations
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
+
   useEffect(() => {
-    // Small delay for smoother entrance animation
     setTimeout(() => setIsLoaded(true), 100);
-    
-    // Check for saved credentials if "remember me" was previously used
-    const savedCredentials = localStorage.getItem('companyCredentials');
-    if (savedCredentials) {
-      try {
-        const { companyId, rememberMe } = JSON.parse(savedCredentials);
-        setFormData(prev => ({ ...prev, companyId }));
-        setRememberMe(rememberMe);
-      } catch (e) {
-        console.error("Error parsing saved credentials");
-      }
-    }
+    console.log("Login credentials for testing: ID '222222222', password 'cvb567'");
   }, []);
 
-  // Handle input changes
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [id]: value
-    }));
-    // Clear error when user types
+    setFormData(prev => ({ ...prev, [id]: value }));
     if (error) setError('');
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Enhanced validation with more specific error messages
-    if (!formData.companyId.trim()) {
-      setError("Please enter your company ID");
+  
+    if (!formData.nationalId.trim()) {
+      setError("Please enter your National ID");
       return;
     }
-    
     if (!formData.password.trim()) {
       setError("Please enter your password");
       return;
     }
-    
+  
     setIsSubmitting(true);
-    
-    // Save credentials if "remember me" is checked
-    if (rememberMe) {
-      localStorage.setItem('companyCredentials', JSON.stringify({
-        companyId: formData.companyId,
-        rememberMe
-      }));
-    } else {
-      localStorage.removeItem('companyCredentials');
-    }
-    
-    // Simulate authentication (replace with actual API call)
-    setTimeout(() => {
-      // For demo purposes - simplified authentication
-      if (formData.companyId === "12345" && formData.password === "password") {
-        // Successful login - redirect to company dashboard
-        setActivePage('companyDashboard');
-      } else {
-        setError("Invalid credentials. Please check your ID and password.");
+    try {
+      const result = await AuthService.loginCompany(formData.nationalId, formData.password);
+      console.log("Login successful, result:", result);
+  
+      // Store authentication data
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userType', 'company');
+      
+      // Store token if available
+      if (result && result.token) {
+        localStorage.setItem('token', result.token);
       }
+  
+      // Redirect using React Router to the company dashboard
+      navigate('/dashboard/company', { replace: true });
+    } catch (error) {
+      if (error.response?.status === 401) {
+        setError("Invalid credentials. Please check your ID and password.");
+      } else if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else if (error.request) {
+        setError("No response from server. Please check your internet connection.");
+      } else {
+        setError("An error occurred. Please try again later.");
+      }
+    } finally {
       setIsSubmitting(false);
-    }, 800);
+    }
   };
 
+  const handleForgotPassword = (e) => {
+    e.preventDefault();
+    setIsForgotPasswordOpen(true);
+  };
+
+  const handleRegister = () => {
+    navigate('/register');
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       {/* Grid background with larger squares and more visible gray lines */}
@@ -157,18 +154,18 @@ const CompanyLoginPage = ({ setActivePage }) => {
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-5 w-full">
-            {/* Company ID Input */}
+            {/* National ID Input */}
             <div className="relative">
-              <label htmlFor="companyId" className="block text-sm font-medium text-gray-700 mb-1 ml-1">
-                Company ID
+              <label htmlFor="nationalId" className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+                National ID
               </label>
               <div className="relative">
                 <input
                   type="text"
-                  id="companyId"
-                  value={formData.companyId}
+                  id="nationalId"
+                  value={formData.nationalId}
                   onChange={handleInputChange}
-                  placeholder="Enter your company ID"
+                  placeholder="Enter your National ID"
                   className="w-full py-3 px-4 pl-11 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-300"
                 />
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
@@ -192,6 +189,7 @@ const CompanyLoginPage = ({ setActivePage }) => {
                 </label>
                 <button 
                   type="button"
+                  onClick={handleForgotPassword}
                   className="text-sm text-gray-600 hover:text-gray-800 focus:outline-none transition-colors"
                 >
                   Forgot password?
@@ -236,7 +234,6 @@ const CompanyLoginPage = ({ setActivePage }) => {
               </div>
             </div>
 
-
             {/* Error Message */}
             <div className={`transition-all duration-300 h-6 ${error ? 'opacity-100' : 'opacity-0'}`}>
               {error && (
@@ -277,7 +274,7 @@ const CompanyLoginPage = ({ setActivePage }) => {
               Don't have an account yet?{" "}
               <button
                 type="button" 
-                onClick={() => setActivePage('register')}
+                onClick={handleRegister}
                 className="text-gray-700 font-semibold hover:text-gray-900 hover:underline focus:outline-none transition-colors"
               >
                 Register Now
@@ -286,6 +283,12 @@ const CompanyLoginPage = ({ setActivePage }) => {
           </div>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal 
+        isOpen={isForgotPasswordOpen} 
+        onClose={() => setIsForgotPasswordOpen(false)} 
+      />
 
       <style jsx>{`
         @keyframes float {

@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
 
 // Import components
 import TrainingCard from './TrainingCard';
 import TrainingModal from './TrainingModal';
-import Navbar from './Navbar';
+import Navbar from './NavbarStudent';
 import InternshipTable from './InternshipTable';
 import ReportUploader from './ReportUploader';
 
-const StudentDashboard = ({ setActivePage }) => {
+const StudentDashboard = () => {
+  const navigate = useNavigate();
+  
   // State for the component
   const [isLoaded, setIsLoaded] = useState(false);
   const [activePageTab, setActivePageTab] = useState('training');
@@ -66,6 +69,34 @@ const StudentDashboard = ({ setActivePage }) => {
       email: "design@creativeminds.com",
       phone: "+1 (555) 234-5678",
       address: "789 Design District, Creative City"
+    },
+    {
+      id: 4,
+      company: "CreativeMinds Design",
+      fieldOfWork: "UI/UX Design",
+      title: "User Experience Design Internship",
+      location: "On-site",
+      duration: "8 Weeks",
+      endDate: "September 1, 2025",
+      description: "Design intuitive user interfaces and improve the user experience of our digital products. Work alongside our design team to create beautiful, functional interfaces that solve real user problems.",
+      logoUrl: "https://source.unsplash.com/random/100x100?logo&design=1",
+      email: "design@creativeminds.com",
+      phone: "+1 (555) 234-5678",
+      address: "789 Design District, Creative City"
+    },
+    {
+      id: 5,
+      company: "CreativeMinds Design",
+      fieldOfWork: "UI/UX Design",
+      title: "User Experience Design Internship",
+      location: "On-site",
+      duration: "8 Weeks",
+      endDate: "September 1, 2025",
+      description: "Design intuitive user interfaces and improve the user experience of our digital products. Work alongside our design team to create beautiful, functional interfaces that solve real user problems.",
+      logoUrl: "https://source.unsplash.com/random/100x100?logo&design=1",
+      email: "design@creativeminds.com",
+      phone: "+1 (555) 234-5678",
+      address: "789 Design District, Creative City"
     }
   ];
   
@@ -91,13 +122,30 @@ const StudentDashboard = ({ setActivePage }) => {
       trainingTitle: "Cloud Infrastructure Internship",
       dateApplied: "March 14, 2025",
       status: "Pending"
+    },
+    {
+      id: 4,
+      companyName: "CloudTech Solutions",
+      trainingTitle: "Cloud Infrastructure Internship",
+      dateApplied: "March 14, 2025",
+      status: "Approved"
     }
   ];
   
   // Set loaded state after component mounts to trigger animations
   useEffect(() => {
+    // Check authentication status
+    const isAuthenticated = localStorage.getItem('isAuthenticated');
+    const userRole = localStorage.getItem('userRole');
+    
+    if (!isAuthenticated || userRole !== 'student') {
+      // Redirect to login if not authenticated as a student
+      navigate('/login/student');
+      return;
+    }
+    
     setTimeout(() => setIsLoaded(true), 200);
-  }, []);
+  }, [navigate]);
   
   // Filter posts based on search query and active filter
   const filteredPosts = trainingPosts.filter(post => {
@@ -163,7 +211,12 @@ const StudentDashboard = ({ setActivePage }) => {
   
   // Handle logout
   const handleLogout = () => {
-    setActivePage('login');
+    // Clear auth state
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('userRole');
+    
+    // Navigate to home page
+    navigate('/');
   };
 
   return (
@@ -260,12 +313,7 @@ const StudentDashboard = ({ setActivePage }) => {
           <div className={`transition-all duration-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             <h2 className="text-2xl font-bold mb-6">Submit Report</h2>
             
-            <ReportUploader
-              file={reportFile}
-              isUploading={isUploading}
-              onFileUpload={handleFileChange}
-              onSubmitReport={handleReportSubmit}
-            />
+            <ReportUploader />
             
             {uploadSuccess && (
               <div className="mt-4 bg-green-100 text-green-800 p-4 rounded-md flex items-center">

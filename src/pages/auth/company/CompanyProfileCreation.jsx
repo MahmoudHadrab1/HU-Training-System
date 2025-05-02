@@ -1,7 +1,10 @@
 // CompanyProfileCreation.jsx
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const CompanyProfileCreation = ({ setActivePage }) => {
+const CompanyProfileCreation = () => {
+  const navigate = useNavigate();
+  
   const [formData, setFormData] = useState({
     companyName: '',
     fieldOfWork: '',
@@ -44,8 +47,13 @@ const CompanyProfileCreation = ({ setActivePage }) => {
     // Simulate form submission
     setTimeout(() => {
       setIsLoading(false);
-      // Navigate to company dashboard or confirmation page
-      setActivePage('companyDashboard');
+      
+      // Set authentication state after successful account creation
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userRole', 'company');
+      
+      // Navigate to company dashboard
+      navigate('/dashboard/company');
     }, 1500);
   };
 
@@ -79,7 +87,7 @@ const CompanyProfileCreation = ({ setActivePage }) => {
               id="fieldOfWork"
               value={formData.fieldOfWork}
               onChange={handleInputChange}
-              placeholder="Filed Of Work"
+              placeholder="Field Of Work"
               className="w-full bg-gray-300 bg-opacity-70 rounded-md py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               required
             />
@@ -152,6 +160,17 @@ const CompanyProfileCreation = ({ setActivePage }) => {
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               ) : "Create"}
+            </button>
+          </div>
+
+          {/* Back button */}
+          <div className="text-center mt-4">
+            <button
+              type="button"
+              onClick={() => navigate('/register')}
+              className="text-gray-600 hover:text-gray-800"
+            >
+              ← Back to previous step
             </button>
           </div>
         </form>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-
-export default function LoginPageStudent({ setActivePage }) {
+import { useNavigate } from "react-router-dom";
+ const LoginPageStudent = () => {
+  const navigate = useNavigate();
+  
   // Animation and form states
   const [isLoaded, setIsLoaded] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -80,13 +82,13 @@ export default function LoginPageStudent({ setActivePage }) {
         (formData.studentId === "demo" && formData.password === "demo")
       ) {
         console.log("Login successful, navigating to student dashboard");
-        // Successful login - explicitly call setActivePage to redirect
-        if (typeof setActivePage === 'function') {
-          setActivePage('studentDashboard');
-        } else {
-          console.error("setActivePage is not a function:", setActivePage);
-          alert("Navigation error: Please contact support. (Error: Invalid navigation function)");
-        }
+        
+        // Set authentication flag
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('userRole', 'student');
+        
+        // Navigate to dashboard
+        navigate('/dashboard/student');
       } else {
         console.log("Login failed, invalid credentials provided");
         setError("Invalid credentials. Please check your ID and password.");
@@ -94,21 +96,6 @@ export default function LoginPageStudent({ setActivePage }) {
       setIsSubmitting(false);
     }, 800);
   };
-
-  // Handle forgot password
-  //const handleForgotPassword = () => {
-    // Replace with actual forgot password functionality
-   // alert("Forgot password functionality will be implemented here");
-  //};
-
-  // Debug function to help with login issues (remove in production)
-  //const debugLogin = () => {
-   // console.log("Debug: Setting test credentials");
-   //setFormData({
-   //   studentId: "123456",
-   //   password: "password"
-  //  });
-  //};
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center relative bg-gradient-to-br from-blue-50 to-red-50 overflow-hidden">
@@ -302,7 +289,21 @@ export default function LoginPageStudent({ setActivePage }) {
               </div>
             </div>
 
-            
+            {/* Remember Me Checkbox */}
+            <div className={`flex items-center transition-all duration-500 delay-900
+              ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
+            >
+              <input 
+                type="checkbox" 
+                id="remember-me"
+                checked={rememberMe}
+                onChange={() => setRememberMe(!rememberMe)}
+                className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+              />
+              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                Remember me
+              </label>
+            </div>
 
             {/* Error Message */}
             <div className={`transition-all duration-300 h-6 ${error ? 'opacity-100' : 'opacity-0'}`}>
@@ -400,4 +401,6 @@ export default function LoginPageStudent({ setActivePage }) {
       `}</style>
     </div>
   );
-}
+};
+
+export default LoginPageStudent;

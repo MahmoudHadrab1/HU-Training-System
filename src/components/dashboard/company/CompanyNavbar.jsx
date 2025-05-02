@@ -1,21 +1,41 @@
 import React from 'react';
-// Import the LogOut icon
+import { useNavigate } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 
 const CompanyNavbar = ({ activeTab, setActiveTab, onLogout }) => {
+  const navigate = useNavigate();
+  
+  // Handle logout
+  const handleLogout = () => {
+    // Clear authentication data
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('userRole');
+    
+    // Call the onLogout function if provided
+    if (typeof onLogout === 'function') {
+      onLogout();
+    } else {
+      // Navigate to home page
+      navigate('/');
+    }
+  };
+  
   return (
     <div className="border-b border-gray-200 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Header with Logo and Logout */}
         <div className="container mx-auto flex justify-between items-center py-3">
           {/* Logo */}
-          <div className="text-xl font-bold text-gray-800">
+          <div 
+            className="text-xl font-bold text-gray-800 cursor-pointer"
+            onClick={() => navigate('/')}  
+          >
             <span className="text-red-600 mr-1">HU-</span>Tech Train
           </div>
           
           {/* Logout Button */}
           <button
-            onClick={onLogout}
+            onClick={handleLogout}
             className="flex items-center bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-md text-gray-700 transition-colors"
           >
             <LogOut className="mr-2 w-4 h-4" /> Log Out

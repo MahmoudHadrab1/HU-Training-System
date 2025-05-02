@@ -1,7 +1,10 @@
 // CompanyRegistration.jsx
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const CompanyRegistration = ({ setActivePage }) => {
+const CompanyRegistration = () => {
+  const navigate = useNavigate();
+  
   const [idNumber, setIdNumber] = useState('');
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('There is something error, Please try again');
@@ -49,7 +52,7 @@ const CompanyRegistration = ({ setActivePage }) => {
       setTimeout(() => {
         setShowVerifying(false);
         setIsLoading(false);
-        setActivePage('profileCreation');
+        navigate('/register/profile-creation');
       }, 1500);
     } else {
       // For non-demo IDs, show error after verification attempt
@@ -133,6 +136,16 @@ const CompanyRegistration = ({ setActivePage }) => {
               Use demo ID (123456789)
             </button>
           </div>
+
+          {/* Back to Login button */}
+          <div className="mt-8 text-center">
+            <button
+              onClick={() => navigate('/login/company')}
+              className="text-gray-600 hover:text-gray-800 font-medium"
+            >
+              ← Back to Login
+            </button>
+          </div>
         </div>
         
         {/* Verification Modal */}
@@ -160,6 +173,26 @@ const CompanyRegistration = ({ setActivePage }) => {
           </div>
         )}
       </div>
+
+      <style jsx>{`
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes scale-in {
+          from { transform: scale(0.95); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out;
+        }
+        
+        .animate-scale-in {
+          animation: scale-in 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 };

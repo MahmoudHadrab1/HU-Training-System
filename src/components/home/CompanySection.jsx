@@ -1,7 +1,9 @@
 import React, { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import companyIllustration from "../../assets/images/company_img1.png";
 
-const CompanySection = ({ setActivePage }) => {
+const CompanySection = () => {
+  const navigate = useNavigate();
   const sectionRef = useRef(null);
   const imageRef = useRef(null);
   const textRef = useRef(null);
@@ -48,7 +50,7 @@ const CompanySection = ({ setActivePage }) => {
     };
   }, []);
 
-  // New function for How It Works button
+  // Function for How It Works button
   const handleHowItWorksClick = () => {
     const howItWorksSection = document.getElementById("how-it-works");
     if (howItWorksSection) {
@@ -70,13 +72,11 @@ const CompanySection = ({ setActivePage }) => {
         buttonRef.current.classList.remove('scale-95');
         // Navigate after brief animation
         setTimeout(() => {
-          setActivePage('register');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          navigate('/register');
         }, 150);
       }, 150);
     } else {
-      setActivePage('register');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      navigate('/register');
     }
   };
 
@@ -119,7 +119,7 @@ const CompanySection = ({ setActivePage }) => {
                 <span className="absolute inset-0 bg-red-800 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></span>
               </button>
               
-              {/* Updated How It Works button */}
+              {/* How It Works button */}
               <button
                 className="bg-gray-600 text-white px-6 py-3 text-base rounded-lg shadow-md hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg opacity-0 animate-fade-in"
                 onClick={handleHowItWorksClick}
@@ -147,4 +147,4 @@ const CompanySection = ({ setActivePage }) => {
   );
 };
 
-export default CompanySection
+export default CompanySection;

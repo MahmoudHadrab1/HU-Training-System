@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Edit, Trash2 } from 'lucide-react';
 import CompanyNavbar from './CompanyNavbar';
-import CompanyDashboardPostsTab from './CompanyDashboardPostsTab';
 import CreatePostModal from './CreatePostModal';
-import SubmitReportModal from './SubmitReportModal';
+import EditPostModal from './EditPostModal';
+import SubmitReportModal from './CompanyFinalReportModal';
 import ViewCVModal from './ViewCVModal';
 import ConfirmationModal from './confirmationModal';
+import WeeklyActivityReport from './WeeklyActivityReport';
 
-const CompanyDashboard = ({ setActivePage }) => {
+const CompanyDashboard = () => {
+  const navigate = useNavigate();
+  
   // State management for active tab and data
   const [activeTab, setActiveTab] = useState('posts');
   const [isLoaded, setIsLoaded] = useState(false);
@@ -24,9 +29,11 @@ const CompanyDashboard = ({ setActivePage }) => {
 
   // State for modals
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
+  const [isEditPostModalOpen, setIsEditPostModalOpen] = useState(false);
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [isSubmitReportModalOpen, setIsSubmitReportModalOpen] = useState(false);
   const [isViewCVModalOpen, setIsViewCVModalOpen] = useState(false);
-  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [confirmationAction, setConfirmationAction] = useState({
     title: '',
@@ -39,7 +46,7 @@ const CompanyDashboard = ({ setActivePage }) => {
   // State for profile updates
   const [isProfileUpdated, setIsProfileUpdated] = useState(false);
 
-  // Demo data for training posts - Updated with approval status
+  // Demo data for training posts - All active by default
   const demoTrainingPosts = [
     {
       id: 1,
@@ -47,7 +54,7 @@ const CompanyDashboard = ({ setActivePage }) => {
       location: 'On-site',
       period: '8 Weeks',
       endDate: '2025-08-15',
-      status: 'Active', // Approved by department head
+      status: 'Active',
       applicantsCount: 5,
       description: 'We are looking for a passionate frontend developer intern to join our team and work on exciting web projects using React.js and modern frontend technologies.'
     },
@@ -57,7 +64,7 @@ const CompanyDashboard = ({ setActivePage }) => {
       location: 'Remote',
       period: '6 Weeks',
       endDate: '2025-07-30',
-      status: 'Active', // Approved by department head
+      status: 'Active', 
       applicantsCount: 3,
       description: 'This internship focuses on UI/UX design principles, user research, prototyping, and creating engaging user interfaces for web and mobile applications.'
     },
@@ -67,7 +74,7 @@ const CompanyDashboard = ({ setActivePage }) => {
       location: 'Hybrid',
       period: '8 Weeks',
       endDate: '2025-06-20',
-      status: 'Closed', // Closed after approval
+      status: 'Active',
       applicantsCount: 0,
       description: 'Learn server-side development using Node.js, Express, and MongoDB. Gain practical experience in building RESTful APIs and database integration.'
     },
@@ -77,7 +84,7 @@ const CompanyDashboard = ({ setActivePage }) => {
       location: 'Remote',
       period: '12 Weeks',
       endDate: '2025-09-30',
-      status: 'Pending Approval', // Waiting for department head approval
+      status: 'Active',
       applicantsCount: 0,
       description: 'Learn the fundamentals of DevOps practices including CI/CD pipelines, container orchestration, and infrastructure as code.'
     }
@@ -125,13 +132,13 @@ const CompanyDashboard = ({ setActivePage }) => {
   ];
 
   useEffect(() => {
+    // Load demo data
     setTimeout(() => {
       setTrainingPosts(demoTrainingPosts);
       setStudentApplications(demoStudentApplications);
       setCompletedReports(demoCompletedReports);
       setIsLoaded(true);
     }, 500);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle creating a new training post
@@ -139,43 +146,45 @@ const CompanyDashboard = ({ setActivePage }) => {
     const newPost = {
       id: trainingPosts.length + 1,
       ...postData,
-      status: 'Pending Approval', // Set initial status to pending approval
+      status: 'Active', // Posts are now active by default without approval
       applicantsCount: 0
     };
 
     setTrainingPosts([newPost, ...trainingPosts]);
-    
-    // Show success notification
-    alert(`Training post "${postData.title}" has been submitted for approval by the department head.`);
+    alert(`Training post "${postData.title}" has been created successfully.`);
   };
 
-  // Handle changing post status (closing or reopening)
-const handlePostStatusChange = (post, newStatus) => {
-  // For reopening a post, we need to go through approval again
-  const finalStatus = newStatus === 'Active' ? 'Pending Approval' : newStatus;
-  
-  // Remove this unused line:
-  // const actionVerb = finalStatus === 'Pending Approval' ? 'submit for re-approval' : 'close';
-  
-  setConfirmationAction({
-    title: finalStatus === 'Pending Approval' ? 'Reopen Training Post?' : 'Close Training Post?',
-    message: finalStatus === 'Pending Approval' 
-      ? `Are you sure you want to reopen "${post.title}"? It will be submitted for department head approval again.`
-      : `Are you sure you want to close "${post.title}"? Students won't be able to apply anymore.`,
-    type: finalStatus === 'Pending Approval' ? 'info' : 'warning',
-    confirmText: finalStatus === 'Pending Approval' ? 'Submit for Approval' : 'Close',
-    onConfirm: () => {
-      const updatedPosts = trainingPosts.map(p => {
-        if (p.id === post.id) {
-          return { ...p, status: finalStatus };
-        }
-        return p;
-      });
-      setTrainingPosts(updatedPosts);
-    }
-  });
-  setIsConfirmationModalOpen(true);
-};
+  // Handle editing a training post
+  const handleEditPost = (post) => {
+    setSelectedPost(post);
+    setIsEditPostModalOpen(true);
+  };
+
+  // Handle saving edited post
+  const handleSaveEditedPost = (editedPost) => {
+    const updatedPosts = trainingPosts.map(post => 
+      post.id === editedPost.id ? editedPost : post
+    );
+    setTrainingPosts(updatedPosts);
+    alert(`Training post "${editedPost.title}" has been updated successfully.`);
+  };
+
+  // Handle deleting a post
+  const handleDeletePost = (post) => {
+    setSelectedPost(post);
+    setConfirmationAction({
+      title: 'Delete Training Post?',
+      message: `Are you sure you want to delete "${post.title}"? This action cannot be undone.`,
+      type: 'danger',
+      confirmText: 'Delete',
+      onConfirm: () => {
+        const updatedPosts = trainingPosts.filter(p => p.id !== post.id);
+        setTrainingPosts(updatedPosts);
+        alert(`Training post "${post.title}" has been deleted successfully.`);
+      }
+    });
+    setIsConfirmationModalOpen(true);
+  };
 
   // Handle student application approval
   const handleApproveStudent = (application) => {
@@ -239,22 +248,15 @@ const handlePostStatusChange = (post, newStatus) => {
     };
     
     setCompletedReports([newReport, ...completedReports]);
-    
-    // Show success notification
     alert(`Report for ${reportData.studentName} submitted successfully!`);
   };
 
   // Handle profile update
   const handleProfileUpdate = () => {
-    // In a real app, you would make an API call here
     setIsProfileUpdated(true);
-    
-    // Reset the notification after 3 seconds
     setTimeout(() => {
       setIsProfileUpdated(false);
     }, 3000);
-    
-    // Show success notification
     alert('Company profile updated successfully!');
   };
 
@@ -273,17 +275,10 @@ const handlePostStatusChange = (post, newStatus) => {
     }
   };
   
-  // Handle logout
+  // Handle logout with Router
   const handleLogout = () => {
-    // In a real app, you would implement actual logout logic here
-    // eslint-disable-next-line no-restricted-globals
-    if (window.confirm("Are you sure you want to logout?")) {
-      alert("You have been logged out");
-      // Navigate to home page or login page
-      if (setActivePage) {
-        setActivePage('home');
-      }
-    }
+    // Navigate to home page
+    navigate('/');
   };
 
   return (
@@ -308,9 +303,7 @@ const handlePostStatusChange = (post, newStatus) => {
                 onClick={() => setIsCreatePostModalOpen(true)}
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors duration-300"
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
+                <Plus className="w-5 h-5 mr-2" />
                 Create Training Post
               </button>
             )}
@@ -322,12 +315,97 @@ const handlePostStatusChange = (post, newStatus) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Training Posts Tab */}
         {activeTab === 'posts' && (
-          <CompanyDashboardPostsTab
-            trainingPosts={trainingPosts}
-            isLoaded={isLoaded}
-            handlePostStatusChange={handlePostStatusChange}
-            setIsCreatePostModalOpen={setIsCreatePostModalOpen}
-          />
+          <div className={`space-y-6 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+            <div className="bg-white shadow rounded-lg overflow-hidden">
+              <div className="flex justify-between items-center px-6 py-4 border-b">
+                <h2 className="text-lg font-semibold text-gray-800">Your Training Posts</h2>
+                <div className="text-sm text-gray-500">
+                  Total: {trainingPosts.length} posts
+                </div>
+              </div>
+
+              {/* Training Posts Table */}
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Title
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Location
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Period
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        End Date
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Applicants
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {trainingPosts.length > 0 ? (
+                      trainingPosts.map((post) => (
+                        <tr key={post.id} className="transition-colors hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">{post.title}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-500">{post.location}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-500">{post.period}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-500">{post.endDate}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                              {post.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {post.applicantsCount}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button 
+                              className="text-blue-600 hover:text-blue-900 mr-4 inline-flex items-center"
+                              onClick={() => handleEditPost(post)}
+                            >
+                              <Edit className="w-4 h-4 mr-1" />
+                              Edit
+                            </button>
+                            <button 
+                              className="text-red-600 hover:text-red-900 inline-flex items-center"
+                              onClick={() => handleDeletePost(post)}
+                            >
+                              <Trash2 className="w-4 h-4 mr-1" />
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                          No training posts found. Create your first training post to get started.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Student Applications Tab */}
@@ -427,81 +505,86 @@ const handlePostStatusChange = (post, newStatus) => {
           </div>
         )}
 
-        {/* Reports Tab */}
-        {activeTab === 'reports' && (
+{activeTab === 'reports' && (
           <div className={`space-y-6 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="bg-white shadow rounded-lg overflow-hidden p-6">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">Training Reports</h2>
-              
-              <p className="text-gray-600 mb-6">Submit reports for students who have completed their training.</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-                  <h3 className="font-medium text-gray-800 mb-3">Pending Reports</h3>
-                  
-                  <div className="space-y-4">
-                    {studentApplications.filter(app => app.status === 'Approved').map((student) => (
-                      <div key={student.id} className="bg-white p-4 rounded shadow-sm">
-                        <div className="flex justify-between">
-                          <div>
-                            <p className="font-medium">{student.studentName}</p>
-                            <p className="text-sm text-gray-500">{student.trainingTitle}</p>
-                          </div>
-                          <button 
-                            className="text-red-600 hover:text-red-800 text-sm font-medium"
-                            onClick={() => handleOpenReportModal(student)}
-                          >
-                            Submit Report
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                    
-                    {studentApplications.filter(app => app.status === 'Approved').length === 0 && (
-                      <div className="bg-white p-4 rounded shadow-sm text-center text-gray-500">
-                        No pending reports. Reports will appear here once you approve student applications.
-                      </div>
-                    )}
-                  </div>
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-white shadow rounded-lg overflow-hidden p-6">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">Training Reports</h2>
                 
-                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-                  <h3 className="font-medium text-gray-800 mb-3">Completed Reports</h3>
-                  
-                  <div className="space-y-4">
-                    {completedReports.map((report) => (
-                      <div key={report.id} className="bg-white p-4 rounded shadow-sm">
-                        <div className="flex justify-between">
-                          <div>
-                            <p className="font-medium">{report.studentName}</p>
-                            <p className="text-sm text-gray-500">{report.trainingTitle}</p>
-                            <p className="text-xs text-gray-400 mt-1">Submitted: {report.submissionDate}</p>
-                          </div>
-                          <div className="flex space-x-2">
+                <p className="text-gray-600 mb-6">Submit reports for students who have completed their training.</p>
+                
+                <div className="grid grid-cols-1 gap-6">
+                  <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                    <h3 className="font-medium text-gray-800 mb-3">Pending Reports</h3>
+                    
+                    <div className="space-y-4">
+                      {studentApplications.filter(app => app.status === 'Approved').map((student) => (
+                        <div key={student.id} className="bg-white p-4 rounded shadow-sm">
+                          <div className="flex justify-between">
+                            <div>
+                              <p className="font-medium">{student.studentName}</p>
+                              <p className="text-sm text-gray-500">{student.trainingTitle}</p>
+                            </div>
                             <button 
-                              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                              onClick={() => alert(`View report functionality for ${report.studentName} would be implemented here`)}
+                              className="text-red-600 hover:text-red-800 text-sm font-medium"
+                              onClick={() => handleOpenReportModal(student)}
                             >
-                              View
-                            </button>
-                            <button 
-                              className="text-gray-600 hover:text-gray-800 text-sm font-medium"
-                              onClick={() => alert(`Edit report functionality for ${report.studentName} would be implemented here`)}
-                            >
-                              Edit
+                              Submit Report
                             </button>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                      
+                      {studentApplications.filter(app => app.status === 'Approved').length === 0 && (
+                        <div className="bg-white p-4 rounded shadow-sm text-center text-gray-500">
+                          No pending reports. Reports will appear here once you approve student applications.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                    <h3 className="font-medium text-gray-800 mb-3">Completed Reports</h3>
                     
-                    {completedReports.length === 0 && (
-                      <div className="bg-white p-4 rounded shadow-sm text-center text-gray-500">
-                        No completed reports yet. They will appear here after you submit them.
-                      </div>
-                    )}
+                    <div className="space-y-4">
+                      {completedReports.map((report) => (
+                        <div key={report.id} className="bg-white p-4 rounded shadow-sm">
+                          <div className="flex justify-between">
+                            <div>
+                              <p className="font-medium">{report.studentName}</p>
+                              <p className="text-sm text-gray-500">{report.trainingTitle}</p>
+                              <p className="text-xs text-gray-400 mt-1">Submitted: {report.submissionDate}</p>
+                            </div>
+                            <div className="flex space-x-2">
+                              <button 
+                                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                onClick={() => alert(`View report functionality for ${report.studentName} would be implemented here`)}
+                              >
+                                View
+                              </button>
+                              <button 
+                                className="text-gray-600 hover:text-gray-800 text-sm font-medium"
+                                onClick={() => alert(`Edit report functionality for ${report.studentName} would be implemented here`)}
+                              >
+                                Edit
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {completedReports.length === 0 && (
+                        <div className="bg-white p-4 rounded shadow-sm text-center text-gray-500">
+                          No completed reports yet. They will appear here after you submit them.
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
+              </div>
+
+              <div>
+                <WeeklyActivityReport />
               </div>
             </div>
           </div>
@@ -648,6 +731,25 @@ const handlePostStatusChange = (post, newStatus) => {
         onSubmit={handleCreatePost}
       />
       
+      {isEditPostModalOpen && selectedPost && (
+        <EditPostModal 
+          isOpen={isEditPostModalOpen}
+          post={selectedPost}
+          onClose={() => setIsEditPostModalOpen(false)}
+          onSubmit={handleSaveEditedPost}
+        />
+      )}
+      
+      <ConfirmationModal 
+        isOpen={isConfirmationModalOpen}
+        onClose={() => setIsConfirmationModalOpen(false)}
+        onConfirm={confirmationAction.onConfirm}
+        title={confirmationAction.title}
+        message={confirmationAction.message}
+        confirmText={confirmationAction.confirmText}
+        type={confirmationAction.type}
+      />
+      
       <SubmitReportModal 
         isOpen={isSubmitReportModalOpen}
         onClose={() => setIsSubmitReportModalOpen(false)}
@@ -660,16 +762,6 @@ const handlePostStatusChange = (post, newStatus) => {
         isOpen={isViewCVModalOpen}
         onClose={() => setIsViewCVModalOpen(false)}
         student={selectedStudent}
-      />
-      
-      <ConfirmationModal 
-        isOpen={isConfirmationModalOpen}
-        onClose={() => setIsConfirmationModalOpen(false)}
-        onConfirm={confirmationAction.onConfirm}
-        title={confirmationAction.title}
-        message={confirmationAction.message}
-        confirmText={confirmationAction.confirmText}
-        type={confirmationAction.type}
       />
     </div>
   );

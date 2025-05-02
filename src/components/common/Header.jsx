@@ -1,16 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
-const Header = ({ setActivePage, setActiveTab, activeTab }) => {
+const Header = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [activeButton, setActiveButton] = useState('home');
-  const [activeSection, setActiveSection] = useState(activeTab);
+  const [activeSection, setActiveSection] = useState('company');
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  // Sync with activeTab from props when it changes
+  // Effect to detect active route
   useEffect(() => {
-    setActiveSection(activeTab);
-  }, [activeTab]);
+    const pathname = location.pathname;
+    if (pathname === '/') {
+      // Default to active tab on home page
+    } else if (pathname.includes('/about')) {
+      setActiveButton('about');
+    } else if (pathname.includes('/login')) {
+      setActiveButton('login');
+    }
+  }, [location]);
+
+  // Set active button state
+  const [activeButton, setActiveButton] = useState('home');
 
   // Effect to detect scroll for header animation
   useEffect(() => {
@@ -38,28 +50,45 @@ const Header = ({ setActivePage, setActiveTab, activeTab }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [dropdownRef]);
 
-  // Handle navigation with animation state
+  // Handle navigation
   const handleNavClick = (page) => {
     setActiveButton(page);
-    setActivePage(page);
+    
+    switch (page) {
+      case 'home':
+        navigate('/');
+        break;
+      case 'about':
+        navigate('/about');
+        break;
+      case 'how-it-works':
+        navigate('/how-it-works');
+        break;
+      case 'login':
+        navigate('/login');
+        break;
+      default:
+        navigate('/');
+    }
   };
 
   // Handle Company/Student section toggle
   const handleSectionToggle = (section) => {
     setActiveSection(section);
-    setActiveTab(section);
+    
+    // Update URL with query parameter for tab
+    navigate(`/?tab=${section}`);
     
     // If not on home page, navigate to home
     if (activeButton !== 'home') {
       setActiveButton('home');
-      setActivePage('home');
     }
   };
 
   // Handle login option selection
   const handleLoginOptionClick = (loginType) => {
     setShowLoginDropdown(false);
-    setActivePage(loginType + 'Login');
+    navigate(`/login/${loginType}`);
   };
 
   // Toggle login dropdown
@@ -105,12 +134,12 @@ const Header = ({ setActivePage, setActiveTab, activeTab }) => {
           onClick={() => handleNavClick('home')}
         >
           {/* Logo styling */}
-          <div className="flex items-center">
+          <Link to="/" className="flex items-center">
             <span className="text-xl font-bold text-gray-700">
               <span className="text-red-600 mr-1">HU-</span>
               Tech Train
             </span>
-          </div>
+          </Link>
         </div>
         
         <nav className="animate-slide-in-down">
@@ -228,7 +257,7 @@ const Header = ({ setActivePage, setActiveTab, activeTab }) => {
               )}
             </li>
             
-            {/* Company Button - Styled like other nav items */}
+            {/* Company Button */}
             <li className="transition-all duration-300">
               <button 
                 onClick={() => handleSectionToggle('company')} 
@@ -249,7 +278,7 @@ const Header = ({ setActivePage, setActiveTab, activeTab }) => {
               </button>
             </li>
             
-            {/* Student Button - Styled like other nav items */}
+            {/* Student Button */}
             <li className="transition-all duration-300">
               <button 
                 onClick={() => handleSectionToggle('student')} 

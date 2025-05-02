@@ -1,7 +1,9 @@
 import React, { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import studentIllustration from "../../assets/images/student_img2.png";
 
-const StudentSection = ({ setActivePage }) => {
+const StudentSection = () => {
+  const navigate = useNavigate();
   const sectionRef = useRef(null);
   const imageRef = useRef(null);
   const textRef = useRef(null);
@@ -43,7 +45,7 @@ const StudentSection = ({ setActivePage }) => {
     };
   }, []);
 
-  // New function for How It Works button
+  // Function for How It Works button
   const handleHowItWorksClick = () => {
     const howItWorksSection = document.getElementById("how-it-works");
     if (howItWorksSection) {
@@ -58,8 +60,7 @@ const StudentSection = ({ setActivePage }) => {
 
   // Handler for Start Your Journey button click
   const handleStartJourneyClick = () => {
-    setActivePage('studentLogin');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    navigate('/login/student');
   };
 
   return (
@@ -69,7 +70,7 @@ const StudentSection = ({ setActivePage }) => {
     <div className="absolute inset-0 -z-10 bg-dots-pattern opacity-5"></div>
     <section 
       ref={sectionRef} 
-      className="student-section  bg-gray-100 py-16 px-8 min-h-[80vh] opacity-0 transition-opacity duration-1000 ease-in-out flex items-start pt-20"
+      className="student-section bg-gray-100 py-16 px-8 min-h-[80vh] opacity-0 transition-opacity duration-1000 ease-in-out flex items-start pt-20"
     >
       <div className="container mx-auto max-w-6xl">
         <div className="flex flex-col md:flex-row-reverse items-center gap-12">
@@ -103,7 +104,7 @@ const StudentSection = ({ setActivePage }) => {
                 Start Your Journey
               </button>
               
-              {/* Updated How It Works button */}
+              {/* How It Works button */}
               <button
                 className="bg-gray-600 text-white px-6 py-3 text-base rounded-lg shadow-md hover:bg-gray-700 transition duration-300 transform hover:scale-105 hover:shadow-lg opacity-0 animate-bounce-in"
                 onClick={handleHowItWorksClick}
