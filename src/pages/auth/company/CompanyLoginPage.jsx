@@ -29,7 +29,7 @@ const CompanyLoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    
     if (!formData.nationalId.trim()) {
       setError("Please enter your National ID");
       return;
@@ -41,30 +41,52 @@ const CompanyLoginPage = () => {
   
     setIsSubmitting(true);
     try {
-      const result = await AuthService.loginCompany(formData.nationalId, formData.password);
-      console.log("Login successful, result:", result);
+      const response = await AuthService.loginCompany(formData.nationalId, formData.password);
+      console.log("Full API Response:", response); // Debug the complete response
+  
+      // Check for token in different response structures
+      const token = response.token || 
+                   (response.data && response.data.token) || 
+                   (response.data && response.data.data && response.data.data.token);
+  
+      if (!token) {
+        throw new Error("Authentication token not found in response");
+      }
+  
+      // Verify token is valid
+      if (typeof token !== 'string' || token.length < 10) {
+        throw new Error("Invalid token format received");
+      }
   
       // Store authentication data
+      localStorage.setItem('token', token);
       localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userType', 'company');
-      
-      // Store token if available
-      if (result && result.token) {
-        localStorage.setItem('token', result.token);
-      }
+      localStorage.setItem('userRole', 'company');
+      localStorage.setItem('user', JSON.stringify(response.data || response));
   
-      // Redirect using React Router to the company dashboard
+      console.log("Authentication successful. Token stored:", {
+        token: localStorage.getItem('token'),
+        user: localStorage.getItem('user')
+      });
+  
       navigate('/dashboard/company', { replace: true });
     } catch (error) {
+      console.error("Login failed:", {
+        error: error,
+        response: error.response,
+        message: error.message
+      });
+  
+      let errorMessage = "Login failed. Please try again.";
       if (error.response?.status === 401) {
-        setError("Invalid credentials. Please check your ID and password.");
-      } else if (error.response?.data?.message) {
-        setError(error.response.data.message);
-      } else if (error.request) {
-        setError("No response from server. Please check your internet connection.");
-      } else {
-        setError("An error occurred. Please try again later.");
+        errorMessage = "Invalid credentials";
+      } else if (error.message.includes("token")) {
+        errorMessage = "Authentication error. Please contact support.";
       }
+  
+      setError(errorMessage);
+      // Clear any partial authentication data
+      AuthService.logout();
     } finally {
       setIsSubmitting(false);
     }

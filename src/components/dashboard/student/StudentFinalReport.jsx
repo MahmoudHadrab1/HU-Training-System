@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
-import { Check, Clock, AlertTriangle, Send, Calendar, FileText } from 'lucide-react';
+import { Check, AlertTriangle, Send, FileText, Info } from 'lucide-react';
 
 const StudentFinalReport = () => {
   const [formData, setFormData] = useState({
@@ -17,7 +17,7 @@ const StudentFinalReport = () => {
   
   const [trainingStatus, setTrainingStatus] = useState({
     hoursCompleted: 0,
-    totalHours: 120, // Default total hours required
+    totalHours: 120,
     isCompleted: false,
     applicationId: null,
     companyName: '',
@@ -28,26 +28,23 @@ const StudentFinalReport = () => {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [showHoursCompletedNotification, setShowHoursCompletedNotification] = useState(false);
-  const [previousHoursCompleted, setPreviousHoursCompleted] = useState(0);
+  const [applicationSentToDepartment, setApplicationSentToDepartment] = useState(false);
 
-  // Check if student has completed training hours and has an approved internship
+  // Check if student has sent an application to the department head
   useEffect(() => {
-    // In a real app, fetch this data from your API
-    // For this demo, we'll simulate it with localStorage and hardcoded data
     const submittedApplicationId = localStorage.getItem('submittedApplicationId');
-    const savedHours = localStorage.getItem('trainingHoursCompleted');
     const reportSubmitted = localStorage.getItem('finalReportSubmitted');
     
     if (submittedApplicationId) {
-      // Get completed hours from localStorage or default to a value
-      const completedHours = savedHours ? parseInt(savedHours) : 90;
+      setApplicationSentToDepartment(true);
       
-      // Simulate fetching training data for this application
+      // For demonstration purposes, set hours to completed (120/120)
+      const completedHours = 120;
+      
       setTrainingStatus({
         hoursCompleted: completedHours,
         totalHours: 120,
-        isCompleted: completedHours >= 120,
+        isCompleted: true,
         applicationId: parseInt(submittedApplicationId),
         companyName: "TechInnovate Solutions", 
         trainingTitle: "Software Engineering Internship",
@@ -55,51 +52,24 @@ const StudentFinalReport = () => {
         endDate: "Apr 15, 2025"
       });
       
-      // Keep track of previous hours to detect completion
-      setPreviousHoursCompleted(completedHours);
-      
-      // Pre-fill some form fields based on the selected internship
-      setFormData(prev => ({
-        ...prev,
-        studentName: "Ahmed Mohammad", // For demo purposes
-        studentId: "201912345", // For demo purposes
+      // Pre-fill form fields
+      setFormData({
+        studentName: "Ahmed Mohammad",
+        studentId: "201912345",
         department: "Computer Science",
         companyName: "TechInnovate Solutions",
         trainingDuration: "8 Weeks",
-        trainingSupervisor: "John Smith" 
-      }));
+        trainingSupervisor: "John Smith",
+        aboutTraining: "",
+        achievedObjectives: "",
+        skills: ""
+      });
       
-      // Check if the report was already submitted
       if (reportSubmitted === 'true') {
         setIsSubmitted(true);
       }
     }
   }, []);
-
-  // Check if hours are completed whenever trainingStatus changes
-  useEffect(() => {
-    // Save current hours to localStorage
-    if (trainingStatus.hoursCompleted > 0) {
-      localStorage.setItem('trainingHoursCompleted', trainingStatus.hoursCompleted);
-    }
-    
-    // Check if hours are now complete but weren't before
-    if (trainingStatus.hoursCompleted >= trainingStatus.totalHours && 
-        previousHoursCompleted < trainingStatus.totalHours) {
-      // Show completion notification
-      setShowHoursCompletedNotification(true);
-      // Update the completion status
-      setTrainingStatus(prev => ({ ...prev, isCompleted: true }));
-      
-      // Auto-dismiss notification after 10 seconds
-      setTimeout(() => {
-        setShowHoursCompletedNotification(false);
-      }, 10000);
-    }
-    
-    // Update previous hours state
-    setPreviousHoursCompleted(trainingStatus.hoursCompleted);
-  }, [trainingStatus.hoursCompleted, trainingStatus.totalHours, previousHoursCompleted]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -108,23 +78,15 @@ const StudentFinalReport = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Check if training hours are completed
-    if (!trainingStatus.isCompleted) {
-      return;
-    }
+    if (!trainingStatus.isCompleted) return;
     
     setIsSubmitting(true);
-    
-    // Generate PDF
     generatePDF();
     
     // Simulate sending to server
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSubmitted(true);
-      
-      // In a real app, you would make an API call here to update the status
       localStorage.setItem('finalReportSubmitted', 'true');
     }, 2000);
   };
@@ -132,7 +94,7 @@ const StudentFinalReport = () => {
   const generatePDF = () => {
     const doc = new jsPDF();
     
-    // Add header with logo (simulated)
+    // Add header
     doc.setFontSize(18);
     doc.setTextColor(44, 62, 80);
     doc.text("TRAINING COMPLETION REPORT", 105, 20, { align: 'center' });
@@ -144,10 +106,6 @@ const StudentFinalReport = () => {
     // Add horizontal line
     doc.setDrawColor(44, 62, 80);
     doc.line(20, 35, 190, 35);
-    
-    // Student and Company Information Section
-    doc.setFontSize(12);
-    doc.setTextColor(52, 73, 94);
     
     // Student Info
     doc.setFontSize(14);
@@ -196,12 +154,10 @@ const StudentFinalReport = () => {
     const skillsLines = doc.splitTextToSize(formData.skills, 170);
     doc.text(skillsLines, 20, yPos + 10);
     
-    // Add signature section
+    // Add date only (no signature)
     yPos = yPos + 20 + (skillsLines.length * 7);
-    
     doc.setFontSize(12);
-    doc.text("Student Signature: _________________________", 20, yPos);
-    doc.text("Date: " + new Date().toLocaleDateString(), 140, yPos);
+    doc.text(`Date: 42025/ 5/`, 140, yPos);
     
     // Add footer
     const pageCount = doc.internal.getNumberOfPages();
@@ -214,20 +170,11 @@ const StudentFinalReport = () => {
     
     // Save the PDF
     doc.save('training_completion_report.pdf');
-    
     return doc;
   };
 
-  // Simulated function to complete more hours (for demo purposes)
-  const handleCompleteMoreHours = () => {
-    const newHours = Math.min(trainingStatus.hoursCompleted + 10, trainingStatus.totalHours);
-    setTrainingStatus(prev => ({
-      ...prev,
-      hoursCompleted: newHours
-    }));
-  };
-
-  if (!trainingStatus.applicationId) {
+  // If there's no approved internship
+  if (!applicationSentToDepartment) {
     return (
       <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg shadow-md">
         <div className="flex">
@@ -246,8 +193,9 @@ const StudentFinalReport = () => {
     );
   }
 
-  if (isSubmitted) {
-    return (
+  // If report is already submitted
+ if (isSubmitted) {
+     return (
       <div className="bg-white rounded-lg shadow-md p-8">
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
@@ -282,124 +230,29 @@ const StudentFinalReport = () => {
             Download Report PDF
           </button>
         </div>
-      </div>
+      </div> 
     );
   }
 
+  // Main report form
   return (
     <div className="flex flex-col h-full bg-white rounded-2xl shadow-md p-8 space-y-8">
-      {/* Completion Notification Banner - shown only when hours are newly completed */}
-      {showHoursCompletedNotification && (
-        <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-md animate-pulse">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <Check className="h-5 w-5 text-green-500" />
-            </div>
-            <div className="ml-3">
-              <h3 className="text-lg font-medium text-green-800">Training Hours Completed!</h3>
-              <div className="mt-2 text-green-700">
-                <p>Congratulations! You have completed all required training hours. You can now submit your final training report.</p>
-              </div>
-            </div>
-          </div>
+      {/* Department Head Approval Notification */}
+      <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-md flex items-start">
+        <div className="flex-shrink-0">
+          <Info className="h-5 w-5 text-blue-500" />
         </div>
-      )}
-
-      {/* Training Details and Progress Card */}
-      <div className={`bg-white border rounded-lg shadow-sm overflow-hidden`}>
-        <div className="border-b bg-gray-50 px-6 py-4">
-          <h3 className="text-lg font-semibold">Training Information</h3>
-        </div>
-        
-        <div className="p-6">
-          <div className="flex flex-col md:flex-row justify-between gap-6">
-            <div className="space-y-3">
-              <div className="flex items-center text-gray-700">
-                <div className="bg-blue-100 p-2 rounded-full mr-3">
-                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-500">Company</div>
-                  <div className="font-medium">{trainingStatus.companyName}</div>
-                </div>
-              </div>
-              
-              <div className="flex items-center text-gray-700">
-                <div className="bg-purple-100 p-2 rounded-full mr-3">
-                  <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-500">Position</div>
-                  <div className="font-medium">{trainingStatus.trainingTitle}</div>
-                </div>
-              </div>
-              
-              <div className="flex items-center text-gray-700">
-                <div className="bg-amber-100 p-2 rounded-full mr-3">
-                  <Calendar className="w-5 h-5 text-amber-600" />
-                </div>
-                <div>
-                  <div className="text-sm text-gray-500">Training Period</div>
-                  <div className="font-medium">{trainingStatus.startDate} to {trainingStatus.endDate}</div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-gray-50 p-4 rounded-lg flex-1">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-medium text-gray-700">Training Hours Progress</h4>
-                <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                  trainingStatus.isCompleted ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-                }`}>
-                  {trainingStatus.isCompleted ? 'Completed' : 'In Progress'}
-                </span>
-              </div>
-              
-              <div className="w-full bg-gray-200 rounded-full h-4 mb-2">
-                <div 
-                  className={`h-4 rounded-full transition-all duration-1000 ${trainingStatus.isCompleted ? 'bg-green-600' : 'bg-blue-600'}`}
-                  style={{ width: `${(trainingStatus.hoursCompleted / trainingStatus.totalHours) * 100}%` }}
-                ></div>
-              </div>
-              
-              <div className="flex justify-between items-center">
-                <div className="text-sm font-medium text-gray-700">
-                  {trainingStatus.hoursCompleted}/{trainingStatus.totalHours} hours
-                </div>
-                <div className="text-sm text-gray-500">
-                  {trainingStatus.isCompleted 
-                    ? 'All hours completed!' 
-                    : `${trainingStatus.totalHours - trainingStatus.hoursCompleted} hours remaining`}
-                </div>
-              </div>
-              
-              {/* Demo button - would be removed in production */}
-              {!trainingStatus.isCompleted && (
-                <button
-                  onClick={handleCompleteMoreHours}
-                  className="mt-4 w-full px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition text-sm font-medium"
-                >
-                  + Complete 10 More Hours (Demo)
-                </button>
-              )}
-              
-              {trainingStatus.isCompleted && (
-                <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-700 flex items-center">
-                  <Check className="w-4 h-4 mr-2 text-green-500" />
-                  You have completed all required training hours and can submit your final report.
-                </div>
-              )}
-            </div>
+        <div className="ml-3">
+          <h3 className="text-lg font-medium text-blue-800">Report Preparation</h3>
+          <div className="mt-2 text-blue-700">
+            <p>Your internship has been approved by the department head. You can now prepare your final training report.</p>
+            <p className="mt-2 font-medium">Important: The final report must be submitted at the end of your training period after completing all required hours.</p>
           </div>
         </div>
       </div>
       
       {/* Report Form */}
-      <div className={`${!trainingStatus.isCompleted ? 'opacity-50 pointer-events-none filter blur-sm' : ''} transition-all duration-500`}>
+      <div className="transition-all duration-500">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Final Training Report</h2>
         
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -516,8 +369,8 @@ const StudentFinalReport = () => {
           <div className="text-center pt-4">
             <button 
               type="submit" 
-              className={`px-8 py-3 ${trainingStatus.isCompleted ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'} text-white rounded-lg transition transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center justify-center mx-auto`}
-              disabled={isSubmitting || !trainingStatus.isCompleted}
+              className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 flex items-center justify-center mx-auto"
+              disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <>
@@ -537,23 +390,6 @@ const StudentFinalReport = () => {
           </div>
         </form>
       </div>
-      
-      {!trainingStatus.isCompleted && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 shadow-sm">
-          <div className="flex items-start">
-            <div className="flex-shrink-0">
-              <Clock className="h-5 w-5 text-yellow-400 mt-0.5" />
-            </div>
-            <div className="ml-3">
-              <h3 className="text-md font-medium text-yellow-800">Training Hours Not Completed</h3>
-              <div className="mt-2 text-sm text-yellow-700">
-                <p>You still need to complete <span className="font-semibold">{trainingStatus.totalHours - trainingStatus.hoursCompleted} more hours</span> of training before you can submit your final report.</p>
-                <p className="mt-2">Please continue with your training program and check back once your hours are complete.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

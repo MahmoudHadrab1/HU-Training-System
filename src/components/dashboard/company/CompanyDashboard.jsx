@@ -8,6 +8,7 @@ import SubmitReportModal from './CompanyFinalReportModal';
 import ViewCVModal from './ViewCVModal';
 import ConfirmationModal from './confirmationModal';
 import WeeklyActivityReport from './WeeklyActivityReport';
+import authService from '../../../services/authService'; // Import the auth service
 
 const CompanyDashboard = () => {
   const navigate = useNavigate();
@@ -19,11 +20,11 @@ const CompanyDashboard = () => {
   const [studentApplications, setStudentApplications] = useState([]);
   const [completedReports, setCompletedReports] = useState([]);
   const [companyProfile, setCompanyProfile] = useState({
-    companyName: 'Tech Solutions Inc.',
-    fieldOfWork: 'IT/E-marketing',
-    companyLocation: 'Amman, Jordan',
-    phoneNumber: '00962796548397',
-    email: 'contact@techsolutions.com',
+    companyName: '',
+    fieldOfWork: '',
+    companyLocation: '',
+    phoneNumber: '',
+    email: '',
     logo: null
   });
 
@@ -45,130 +46,154 @@ const CompanyDashboard = () => {
 
   // State for profile updates
   const [isProfileUpdated, setIsProfileUpdated] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Demo data for training posts - All active by default
-  const demoTrainingPosts = [
-    {
-      id: 1,
-      title: 'Frontend Developer Internship',
-      location: 'On-site',
-      period: '8 Weeks',
-      endDate: '2025-08-15',
-      status: 'Active',
-      applicantsCount: 5,
-      description: 'We are looking for a passionate frontend developer intern to join our team and work on exciting web projects using React.js and modern frontend technologies.'
-    },
-    {
-      id: 2,
-      title: 'UI/UX Design Training',
-      location: 'Remote',
-      period: '6 Weeks',
-      endDate: '2025-07-30',
-      status: 'Active', 
-      applicantsCount: 3,
-      description: 'This internship focuses on UI/UX design principles, user research, prototyping, and creating engaging user interfaces for web and mobile applications.'
-    },
-    {
-      id: 3,
-      title: 'Backend Development',
-      location: 'Hybrid',
-      period: '8 Weeks',
-      endDate: '2025-06-20',
-      status: 'Active',
-      applicantsCount: 0,
-      description: 'Learn server-side development using Node.js, Express, and MongoDB. Gain practical experience in building RESTful APIs and database integration.'
-    },
-    {
-      id: 4,
-      title: 'DevOps Engineer Training',
-      location: 'Remote',
-      period: '12 Weeks',
-      endDate: '2025-09-30',
-      status: 'Active',
-      applicantsCount: 0,
-      description: 'Learn the fundamentals of DevOps practices including CI/CD pipelines, container orchestration, and infrastructure as code.'
-    }
-  ];
 
-  // Demo data for student applications
-  const demoStudentApplications = [
-    {
-      id: 1,
-      studentName: 'Ahmad Khalid',
-      studentId: 'S12345',
-      trainingTitle: 'Frontend Developer Internship',
-      applicationDate: '2025-03-15',
-      status: 'Pending'
-    },
-    {
-      id: 2,
-      studentName: 'Sara Ahmed',
-      studentId: 'S12346',
-      trainingTitle: 'Frontend Developer Internship',
-      applicationDate: '2025-03-16',
-      status: 'Approved'
-    },
-    {
-      id: 3,
-      studentName: 'Mohammed Ali',
-      studentId: 'S12347',
-      trainingTitle: 'UI/UX Design Training',
-      applicationDate: '2025-03-14',
-      status: 'Rejected'
-    }
-  ];
 
-  // Demo data for completed reports
-  const demoCompletedReports = [
-    {
-      id: 1,
-      studentName: 'Mohammed Ali',
-      studentId: 'S12347',
-      trainingTitle: 'UI/UX Design Training',
-      submissionDate: '2025-03-20',
-      performance: 'Very Good',
-      recommendation: 'Recommended'
-    }
-  ];
+ 
+
+
 
   useEffect(() => {
+    // Check authentication 4/5/2025
+    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+    const userRole = localStorage.getItem('userRole');
+    const companyId = localStorage.getItem('currentCompanyId');
+    if (!isAuthenticated || userRole !== 'company') {
+      // Redirect to login if not authenticated as company 4/5/2025
+      navigate('/login/company');
+      return;
+    }
+    
+    // Load company profile data 4/5/2025
+    const loadedProfile = authService.getCompanyProfile();
+    if (loadedProfile) {
+      setCompanyProfile(loadedProfile);
+    }
+    
+    // Load saved posts from localStorage  5/5/25
+  //const savedPosts = localStorage.getItem('trainingPosts');
+  const savedPosts = JSON.parse(localStorage.getItem(`trainingPosts_${companyId}`)) || [];//6/5/25
+setTrainingPosts(savedPosts);//6/5/25
+
+ // if (savedPosts) {
+  //  try {
+   //   setTrainingPosts(JSON.parse(savedPosts));
+  //  } catch (error) {
+  //    console.error("Error parsing saved posts:", error);
+ //   }
+  //}
     // Load demo data
     setTimeout(() => {
-      setTrainingPosts(demoTrainingPosts);
-      setStudentApplications(demoStudentApplications);
-      setCompletedReports(demoCompletedReports);
+      //setTrainingPosts(demoTrainingPosts);
+      //setStudentApplications(demoStudentApplications);
+      //setCompletedReports(demoCompletedReports);
       setIsLoaded(true);
     }, 500);
   }, []);
-
+  
   // Handle creating a new training post
   const handleCreatePost = (postData) => {
+    const companyId = localStorage.getItem('currentCompanyId'); // مهم
     const newPost = {
       id: trainingPosts.length + 1,
       ...postData,
+      companyId, // 👈 أضف هذا السطر
       status: 'Active', // Posts are now active by default without approval
       applicantsCount: 0
     };
+// Update state with the new post 5/5/25
+const updatedPosts = [newPost, ...trainingPosts];
+setTrainingPosts(updatedPosts);
 
-    setTrainingPosts([newPost, ...trainingPosts]);
+localStorage.setItem(`trainingPosts_${companyId}`, JSON.stringify(updatedPosts)); //6/5/25
+// Store in localStorage for persistence across page refreshes
+   // localStorage.setItem('trainingPosts', JSON.stringify(updatedPosts));
+    //setTrainingPosts([newPost, ...trainingPosts]);
     alert(`Training post "${postData.title}" has been created successfully.`);
   };
 
-  // Handle editing a training post
   const handleEditPost = (post) => {
-    setSelectedPost(post);
+    const transformedPost = {
+      ...post,
+      _id: post.id // <== add _id
+    };
+    setSelectedPost(transformedPost);
     setIsEditPostModalOpen(true);
   };
+  
 
   // Handle saving edited post
-  const handleSaveEditedPost = (editedPost) => {
-    const updatedPosts = trainingPosts.map(post => 
-      post.id === editedPost.id ? editedPost : post
-    );
+  const handleSaveEditedPost = (updatedPostFromBackend) => {
+    const updatedPosts = trainingPosts.map(post => {
+      const postId = post._id || post.id;
+      const updatedId = updatedPostFromBackend._id || updatedPostFromBackend.id;
+  
+      if (postId === updatedId) {
+        return {
+          ...post,
+          ...updatedPostFromBackend,
+          id: updatedPostFromBackend._id || updatedPostFromBackend.id, // normalize
+          _id: updatedPostFromBackend._id || updatedPostFromBackend.id // normalize
+        };
+      }
+      return post;
+    });
+  
     setTrainingPosts(updatedPosts);
-    alert(`Training post "${editedPost.title}" has been updated successfully.`);
+    const companyId = localStorage.getItem('currentCompanyId'); //6/5/25
+    localStorage.setItem(`trainingPosts_${companyId}`, JSON.stringify(updatedPosts));//6/5/25
+    
+    // Add this line to persist the changes to localStorage 5/5/25
+  //localStorage.setItem('trainingPosts', JSON.stringify(updatedPosts));
+    alert(`Training post "${updatedPostFromBackend.title}" has been updated successfully.`);
+  };
+  
+
+  // Handle profile update 4/5/2025
+  const handleProfileUpdate = async () => {
+    try {
+      // Show loading state
+      setIsProfileUpdated(false);
+      setIsSubmitting(true);
+      
+      // Update the profile in the service (which will call the API)
+      await authService.updateCompanyProfile(companyProfile);
+      
+      // Show the success message
+      setIsSubmitting(false);
+      setIsProfileUpdated(true);
+      setTimeout(() => {
+        setIsProfileUpdated(false);
+      }, 3000);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      setIsSubmitting(false);
+      // Show error message to user
+      alert(`Failed to update profile: ${error.message || 'Unknown error'}`);
+    }
   };
 
+  // Handle file upload for company logo 4/5/2025
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        // Update local state
+        setCompanyProfile({
+          ...companyProfile,
+          logo: reader.result
+        });
+        
+        // Update in localStorage via service
+        authService.updateCompanyProfile({
+          logo: reader.result
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
   // Handle deleting a post
   const handleDeletePost = (post) => {
     setSelectedPost(post);
@@ -251,7 +276,7 @@ const CompanyDashboard = () => {
     alert(`Report for ${reportData.studentName} submitted successfully!`);
   };
 
-  // Handle profile update
+  /* // Handle profile update
   const handleProfileUpdate = () => {
     setIsProfileUpdated(true);
     setTimeout(() => {
@@ -273,13 +298,148 @@ const CompanyDashboard = () => {
       };
       reader.readAsDataURL(file);
     }
-  };
+  }; */
   
   // Handle logout with Router
   const handleLogout = () => {
     // Navigate to home page
     navigate('/');
   };
+
+
+
+// Render the profile tab content
+  const renderProfileTab = () => (
+    <div className={`space-y-6 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+      <div className="bg-white shadow rounded-lg overflow-hidden">
+        <div className="px-6 py-4 border-b">
+          <h2 className="text-lg font-semibold text-gray-800">Company Profile</h2>
+        </div>
+        
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Logo Upload Section */}
+            <div className="md:col-span-1">
+              <div className="flex flex-col items-center">
+                <div className="w-40 h-40 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden mb-4">
+                  {companyProfile.logo ? (
+                    <img 
+                      src={companyProfile.logo} 
+                      alt="Company Logo" 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <svg className="w-20 h-20 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <label 
+                  htmlFor="logo-upload" 
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm py-2 px-4 rounded-lg transition-colors duration-300 cursor-pointer"
+                >
+                  Upload Logo
+                </label>
+                <input 
+                  id="logo-upload" 
+                  type="file" 
+                  className="hidden" 
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                />
+              </div>
+            </div>
+            
+            {/* Profile Form */}
+            <div className="md:col-span-2">
+              <form className="space-y-4">
+                <div>
+                  <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-1">
+                    Company Name
+                  </label>
+                  <input
+                    type="text"
+                    id="companyName"
+                    value={companyProfile.companyName}
+                    onChange={(e) => setCompanyProfile({...companyProfile, companyName: e.target.value})}
+                    className="w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="fieldOfWork" className="block text-sm font-medium text-gray-700 mb-1">
+                    Field of Work
+                  </label>
+                  <input
+                    type="text"
+                    id="fieldOfWork"
+                    value={companyProfile.fieldOfWork}
+                    onChange={(e) => setCompanyProfile({...companyProfile, fieldOfWork: e.target.value})}
+                    className="w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="companyLocation" className="block text-sm font-medium text-gray-700 mb-1">
+                    Company Location
+                  </label>
+                  <input
+                    type="text"
+                    id="companyLocation"
+                    value={companyProfile.companyLocation}
+                    onChange={(e) => setCompanyProfile({...companyProfile, companyLocation: e.target.value})}
+                    className="w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    id="phoneNumber"
+                    value={companyProfile.phoneNumber}
+                    onChange={(e) => setCompanyProfile({...companyProfile, phoneNumber: e.target.value})}
+                    className="w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={companyProfile.email}
+                    onChange={(e) => setCompanyProfile({...companyProfile, email: e.target.value})}
+                    className="w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
+                  />
+                </div>
+                
+                <div className="pt-4">
+                  <button
+                    type="button"
+                    onClick={handleProfileUpdate}
+                    className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md shadow-sm transition-colors duration-300"
+                  >
+                    Save Changes
+                  </button>
+                  
+                  {isProfileUpdated && (
+                    <span className="ml-3 text-green-600 font-medium animate-pulse">
+                      Profile updated successfully!
+                    </span>
+                  )}
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -288,6 +448,7 @@ const CompanyDashboard = () => {
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
         onLogout={handleLogout}
+        companyName={companyProfile.companyName} // Pass company name to navbar
       />
       
       {/* Dashboard Header - Welcome section */}
@@ -313,9 +474,10 @@ const CompanyDashboard = () => {
 
       {/* Dashboard Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Training Posts Tab */}
+        {/* Dynamic tab content based on activeTab state */}
         {activeTab === 'posts' && (
           <div className={`space-y-6 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+            {/* Training Posts tab content */}
             <div className="bg-white shadow rounded-lg overflow-hidden">
               <div className="flex justify-between items-center px-6 py-4 border-b">
                 <h2 className="text-lg font-semibold text-gray-800">Your Training Posts</h2>
@@ -324,7 +486,6 @@ const CompanyDashboard = () => {
                 </div>
               </div>
 
-              {/* Training Posts Table */}
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -405,12 +566,13 @@ const CompanyDashboard = () => {
                 </table>
               </div>
             </div>
+            {/* ... existing posts tab content ... */}
           </div>
         )}
 
-        {/* Student Applications Tab */}
         {activeTab === 'applications' && (
           <div className={`space-y-6 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+            {/* Applications tab content */}
             <div className="bg-white shadow rounded-lg overflow-hidden">
               <div className="flex justify-between items-center px-6 py-4 border-b">
                 <h2 className="text-lg font-semibold text-gray-800">Student Applications</h2>
@@ -419,7 +581,6 @@ const CompanyDashboard = () => {
                 </div>
               </div>
 
-              {/* Applications Table */}
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -502,16 +663,16 @@ const CompanyDashboard = () => {
                 </table>
               </div>
             </div>
+            {/* ... existing applications tab content ... */}
           </div>
         )}
 
-{activeTab === 'reports' && (
+        {activeTab === 'reports' && (
           <div className={`space-y-6 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+            {/* Reports tab content */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="bg-white shadow rounded-lg overflow-hidden p-6">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">Training Reports</h2>
-                
-                <p className="text-gray-600 mb-6">Submit reports for students who have completed their training.</p>
                 
                 <div className="grid grid-cols-1 gap-6">
                   <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
@@ -587,142 +748,13 @@ const CompanyDashboard = () => {
                 <WeeklyActivityReport />
               </div>
             </div>
+            {/* ... existing reports tab content ... */}
           </div>
         )}
 
-        {/* Company Profile Tab */}
-        {activeTab === 'profile' && (
-          <div className={`space-y-6 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="bg-white shadow rounded-lg overflow-hidden">
-              <div className="px-6 py-4 border-b">
-                <h2 className="text-lg font-semibold text-gray-800">Company Profile</h2>
-              </div>
-              
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Logo Upload Section */}
-                  <div className="md:col-span-1">
-                    <div className="flex flex-col items-center">
-                      <div className="w-40 h-40 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden mb-4">
-                        {companyProfile.logo ? (
-                          <img 
-                            src={companyProfile.logo} 
-                            alt="Company Logo" 
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <svg className="w-20 h-20 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </div>
-                      <label 
-                        htmlFor="logo-upload" 
-                        className="bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm py-2 px-4 rounded-lg transition-colors duration-300 cursor-pointer"
-                      >
-                        Upload Logo
-                      </label>
-                      <input 
-                        id="logo-upload" 
-                        type="file" 
-                        className="hidden" 
-                        accept="image/*"
-                        onChange={handleLogoUpload}
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* Profile Form */}
-                  <div className="md:col-span-2">
-                    <form className="space-y-4">
-                      <div>
-                        <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 mb-1">
-                          Company Name
-                        </label>
-                        <input
-                          type="text"
-                          id="companyName"
-                          value={companyProfile.companyName}
-                          onChange={(e) => setCompanyProfile({...companyProfile, companyName: e.target.value})}
-                          className="w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="fieldOfWork" className="block text-sm font-medium text-gray-700 mb-1">
-                          Field of Work
-                        </label>
-                        <input
-                          type="text"
-                          id="fieldOfWork"
-                          value={companyProfile.fieldOfWork}
-                          onChange={(e) => setCompanyProfile({...companyProfile, fieldOfWork: e.target.value})}
-                          className="w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="companyLocation" className="block text-sm font-medium text-gray-700 mb-1">
-                          Company Location
-                        </label>
-                        <input
-                          type="text"
-                          id="companyLocation"
-                          value={companyProfile.companyLocation}
-                          onChange={(e) => setCompanyProfile({...companyProfile, companyLocation: e.target.value})}
-                          className="w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
-                          Phone Number
-                        </label>
-                        <input
-                          type="tel"
-                          id="phoneNumber"
-                          value={companyProfile.phoneNumber}
-                          onChange={(e) => setCompanyProfile({...companyProfile, phoneNumber: e.target.value})}
-                          className="w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                          Email
-                        </label>
-                        <input
-                          type="email"
-                          id="email"
-                          value={companyProfile.email}
-                          onChange={(e) => setCompanyProfile({...companyProfile, email: e.target.value})}
-                          className="w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
-                        />
-                      </div>
-                      
-                      <div className="pt-4">
-                        <button
-                          type="button"
-                          onClick={handleProfileUpdate}
-                          className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md shadow-sm transition-colors duration-300"
-                        >
-                          Save Changes
-                        </button>
-                        
-                        {isProfileUpdated && (
-                          <span className="ml-3 text-green-600 font-medium animate-pulse">
-                            Profile updated successfully!
-                          </span>
-                        )}
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {activeTab === 'profile' && renderProfileTab()}
       </div>
+
 
       {/* Modals */}
       <CreatePostModal 

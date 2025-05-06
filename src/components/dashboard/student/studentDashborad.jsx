@@ -7,7 +7,7 @@ import TrainingCard from './TrainingCard';
 import TrainingModal from './TrainingModal';
 import Navbar from './NavbarStudent';
 import InternshipTable from './InternshipTable';
-import ReportUploader from './ReportUploader';
+import ReportUploader from './StudentFinalReport';
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ const StudentDashboard = () => {
   
   // Training posts related state
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState('All');
+  const [activeFilter, setActiveFilter] = useState('On-site'); // Default to On-site
   const [selectedTraining, setSelectedTraining] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [applicationSubmitted, setApplicationSubmitted] = useState(false);
@@ -33,7 +33,7 @@ const StudentDashboard = () => {
       company: "TechInnovate Solutions",
       fieldOfWork: "Software Development",
       title: "Software Engineering Internship",
-      location: "Remote",
+      location: "On-site", // Changed to On-site
       duration: "8 Weeks",
       endDate: "August 15, 2025",
       description: "Join our team to develop cutting-edge software solutions and gain hands-on experience in real-world projects. You'll work closely with senior engineers on developing new features, fixing bugs, and improving our product.",
@@ -47,7 +47,7 @@ const StudentDashboard = () => {
       company: "DataDrive Analytics",
       fieldOfWork: "Data Science",
       title: "Data Analysis Internship",
-      location: "Hybrid",
+      location: "On-site", // Changed to On-site
       duration: "6 Weeks",
       endDate: "July 30, 2025",
       description: "Learn how to analyze large datasets and translate findings into actionable business insights. Our internship program gives you the opportunity to work on real data science projects while learning from our experienced team.",
@@ -144,6 +144,9 @@ const StudentDashboard = () => {
       return;
     }
     
+    // Set the filter to On-site by default
+    setActiveFilter('On-site');
+    
     setTimeout(() => setIsLoaded(true), 200);
   }, [navigate]);
   
@@ -155,41 +158,13 @@ const StudentDashboard = () => {
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       post.fieldOfWork.toLowerCase().includes(searchQuery.toLowerCase());
     
-    // Apply category filter
-    const matchesFilter = 
-      activeFilter === 'All' || 
-      post.location === activeFilter ||
-      post.fieldOfWork === activeFilter;
+    // Apply location filter - show only On-site posts
+    const matchesFilter = post.location === 'On-site';
     
     return matchesSearch && matchesFilter;
   });
   
-  // Handle file selection
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setReportFile(e.target.files[0]);
-    }
-  };
-  
-  // Handle report submission
-  const handleReportSubmit = () => {
-    if (!reportFile) return;
-    
-    setIsUploading(true);
-    // Simulate upload
-    setTimeout(() => {
-      setIsUploading(false);
-      setUploadSuccess(true);
-      
-      // Reset after showing success message
-      setTimeout(() => {
-        setUploadSuccess(false);
-        setReportFile(null);
-      }, 3000);
-    }, 2000);
-  };
-  
-  // Handle opening training details modal - renamed from handleViewTrainingDetails
+  // Handle opening training details modal
   const handleViewInfo = (training) => {
     setSelectedTraining(training);
     setIsModalOpen(true);
@@ -198,7 +173,6 @@ const StudentDashboard = () => {
   
   // Handle application submission from modal
   const handleSubmitApplication = () => {
-    // In a real app, this would send the application to the backend
     setTimeout(() => {
       setApplicationSubmitted(true);
       
@@ -228,13 +202,13 @@ const StudentDashboard = () => {
         onLogout={handleLogout} 
       />
       
-      {/* Main Content - with top padding to account for fixed navbar */}
+      {/* Main Content */}
       <div className="container mx-auto px-6 pt-8 pb-8">
         {/* Training Posts */}
         {activePageTab === 'training' && (
           <div className={`transition-all duration-500 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-              <h2 className="text-2xl font-bold mb-0">Training Posts</h2>
+              <h2 className="text-2xl font-bold mb-0"> Training Posts</h2>
               
               <div className="w-full md:w-auto">
                 <div className="relative">
@@ -249,23 +223,6 @@ const StudentDashboard = () => {
                 </div>
               </div>
             </div>
-            
-            {/* Filter Pills */}
-            <div className="flex flex-wrap gap-2 mb-6">
-              {['All', 'Remote', 'On-site', 'Hybrid'].map((filter) => (
-                <button 
-                  key={filter}
-                  onClick={() => setActiveFilter(filter)}
-                  className={`px-3 py-1 rounded-full text-sm transition-colors ${
-                    activeFilter === filter 
-                      ? 'bg-red-600 text-white' 
-                      : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  {filter}
-                </button>
-              ))}
-            </div>
 
             {/* Training Posts Grid */}
             {filteredPosts.length > 0 ? (
@@ -274,17 +231,15 @@ const StudentDashboard = () => {
                   <TrainingCard 
                     key={post.id}
                     post={post}
-                    onDetailsClick={() => handleViewInfo(post)} // Changed function name to match the change from "Apply Now" to "View Info"
+                    onDetailsClick={() => handleViewInfo(post)}
                   />
                 ))}
               </div>
             ) : (
               <div className="bg-white rounded-lg shadow-md p-8 text-center">
-                <p className="text-gray-600">No training posts match your search criteria. Try adjusting your filters.</p>
+                <p className="text-gray-600">No on-site training posts match your search criteria. Try adjusting your search terms.</p>
               </div>
             )}
-            
-            {/* Pagination section removed as requested */}
           </div>
         )}
         

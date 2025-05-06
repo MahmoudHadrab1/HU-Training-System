@@ -43,10 +43,13 @@ const MainLayout = ({ children }) => {
 // Protected Route component to handle authentication
 const ProtectedRoute = ({ children }) => {
   const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  const userRole = localStorage.getItem('userRole'); // Make sure this matches what you set
+  console.log("Protected Route Check:", isAuthenticated, userRole);
+
 
   if (!isAuthenticated) {
-    return <Navigate to="/login/company" replace />;
-  }
+   return <Navigate to="/login/company" replace />;
+ }
 
   return children;
 };

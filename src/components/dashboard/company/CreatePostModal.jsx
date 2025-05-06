@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
+import companyService from '../../../services/companyService';
 
 const CreatePostModal = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     title: '',
-    location: 'On-site',
-    period: '8 Weeks',
-    endDate: '',
+    location: 'On-site', // Default to in-person only
+    period: '8 Weeks',    // Default to 8 weeks
+    endDate: '',  
     description: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -16,19 +18,44 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit }) => {
       ...prev,
       [name]: value
     }));
+
+    // Clear any error when user makes changes
+    if (error) setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Add a short delay to simulate API call
-    setTimeout(() => {
-      onSubmit(formData);
-      setIsSubmitting(false);
-      onClose();
+    if (!localStorage.getItem('token')) {
+      setError('You need to be logged in to create posts');
+      return;
+    }
+
+    try {
+      // Format data for API
+      const postData = {
+        title: formData.title,
+        location: formData.location.toLowerCase(), // API expects lowercase
+        duration: formData.period.split(' ')[0],   // Extract number from "8 Weeks"
+        availableUntil: formData.endDate,
+        description: formData.description
+      };
+      console.log("Sending post data:", postData);
+
+      // Call API to create post
+      const result = await companyService.createTrainingPost(postData);
       
-      // Reset form
+      // Call onSubmit to update UI
+      onSubmit({
+        ...formData,
+        id: result.data?.post?._id || Date.now().toString(), // Use API ID or fallback
+        status: 'Active',
+        applicantsCount: 0
+      });
+      
+      // Close modal and reset form
+      onClose();
       setFormData({
         title: '',
         location: 'On-site',
@@ -36,7 +63,12 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit }) => {
         endDate: '',
         description: ''
       });
-    }, 500);
+    } catch (error) {
+      console.error('Error creating post:', error);
+      setError(error.response?.data?.message || 'Failed to create training post. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -56,21 +88,21 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit }) => {
           </button>
         </div>
 
-        {/* Info banner about approval process */}
-        <div className="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-blue-700">
-                Your training post will be submitted for department head approval. You'll be notified once it's approved.
-              </p>
+        {/* Error message display if needed */}
+        {error && (
+          <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -101,8 +133,7 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit }) => {
               required
             >
               <option value="On-site">On-site</option>
-              <option value="Remote">Remote</option>
-              <option value="Hybrid">Hybrid</option>
+              {/* Removed Remote and Hybrid options as requested */}
             </select>
           </div>
 
@@ -118,10 +149,9 @@ const CreatePostModal = ({ isOpen, onClose, onSubmit }) => {
               className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
               required
             >
-              <option value="4 Weeks">4 Weeks</option>
+              {/* Limited to 6-8 weeks as requested */}
               <option value="6 Weeks">6 Weeks</option>
               <option value="8 Weeks">8 Weeks</option>
-              <option value="12 Weeks">12 Weeks</option>
             </select>
           </div>
 

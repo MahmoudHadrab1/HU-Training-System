@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import companyService from '../../../services/companyService';
 
 const EditPostModal = ({ isOpen, post, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
-    id: post?.id || '',
+    _id: post?._id || '',  // Use _id instead of id for MongoDB compatibility
     title: post?.title || '',
-    location: post?.location || 'On-site',
-    period: post?.period || '8 Weeks',
+    location: post?.location || 'On-site',  // Default to on-site
+    period: post?.period || '8 Weeks',      // Default to 8 weeks
     endDate: post?.endDate || '',
     description: post?.description || '',
     status: post?.status || 'Active',
@@ -13,6 +14,7 @@ const EditPostModal = ({ isOpen, post, onClose, onSubmit }) => {
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,18 +22,47 @@ const EditPostModal = ({ isOpen, post, onClose, onSubmit }) => {
       ...prev,
       [name]: value
     }));
+    
+    // Clear error when user makes changes
+    if (error) setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate API call with a slight delay
-    setTimeout(() => {
-      onSubmit(formData);
-      setIsSubmitting(false);
+    try {
+      // Prepare data for the API
+      const postData = {
+        title: formData.title,
+        location: formData.location.toLowerCase(),
+        period: formData.period, // ✔️ match what the backend expects
+        availableUntil: formData.endDate,
+        description: formData.description,
+        status: formData.status
+      };
+      
+      
+      // Call the API
+      const updatedPost = await companyService.editTrainingPost(formData._id, postData);
+      console.log('✅ Post updated:', updatedPost);
+      
+      // Use the response from the backend
+      if (updatedPost.data && updatedPost.data.post) {
+        onSubmit(updatedPost.data.post);
+      } else {
+        // Fallback to using form data if backend response structure is unexpected
+        onSubmit(formData);
+      }
+      
+      // Close the modal
       onClose();
-    }, 500);
+    } catch (error) {
+      console.error('Error updating post:', error);
+      setError(error.response?.data?.message || 'Failed to update post. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -50,6 +81,22 @@ const EditPostModal = ({ isOpen, post, onClose, onSubmit }) => {
             </svg>
           </button>
         </div>
+
+        {/* Error message display */}
+        {error && (
+          <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-4 rounded">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -71,18 +118,14 @@ const EditPostModal = ({ isOpen, post, onClose, onSubmit }) => {
             <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
               Training Location*
             </label>
-            <select
+            <input
+              type="text"
               id="location"
               name="location"
-              value={formData.location}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              required
-            >
-              <option value="On-site">On-site</option>
-              <option value="Remote">Remote</option>
-              <option value="Hybrid">Hybrid</option>
-            </select>
+              value="On-site"
+              className="w-full border border-gray-300 rounded-md py-2 px-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent cursor-not-allowed"
+              disabled
+            />
           </div>
 
           <div>
@@ -97,10 +140,9 @@ const EditPostModal = ({ isOpen, post, onClose, onSubmit }) => {
               className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
               required
             >
-              <option value="4 Weeks">4 Weeks</option>
+              {/* Limited to 6-8 weeks as requested */}
               <option value="6 Weeks">6 Weeks</option>
               <option value="8 Weeks">8 Weeks</option>
-              <option value="12 Weeks">12 Weeks</option>
             </select>
           </div>
 

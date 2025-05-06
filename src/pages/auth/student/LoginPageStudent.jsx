@@ -1,38 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
- const LoginPageStudent = () => {
+import authService from "../../../services/authService";
+const LoginPageStudent = () => {
   const navigate = useNavigate();
   
   // Animation and form states
   const [isLoaded, setIsLoaded] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    studentId: '',
+    universityId: '',
     password: ''
   });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   
   // Set loaded state after component mounts to trigger animations
   useEffect(() => {
     setTimeout(() => setIsLoaded(true), 100);
     
-    // Check for saved credentials
-    const savedCredentials = localStorage.getItem('studentCredentials');
-    if (savedCredentials) {
-      try {
-        const { studentId, rememberMe } = JSON.parse(savedCredentials);
-        setFormData(prev => ({ ...prev, studentId }));
-        setRememberMe(rememberMe);
-      } catch (e) {
-        console.error("Error parsing saved credentials:", e);
-        localStorage.removeItem('studentCredentials');
-      }
-    }
-
     // For testing convenience (remove in production)
-    console.log("Login credentials for testing: ID '123456', password 'password'");
+    console.log("Login credentials for testing: ID '3456789', password 'F123456*'");
   }, []);
 
   // Handle input changes
@@ -47,12 +34,12 @@ import { useNavigate } from "react-router-dom";
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Enhanced validation
-    if (!formData.studentId.trim()) {
-      setError("Please enter your student ID");
+    if (!formData.universityId.trim()) {
+      setError("Please enter your University ID");
       return;
     }
     
@@ -63,38 +50,34 @@ import { useNavigate } from "react-router-dom";
     
     setIsSubmitting(true);
     
-    // Save credentials if "remember me" is checked
-    if (rememberMe) {
-      localStorage.setItem('studentCredentials', JSON.stringify({
-        studentId: formData.studentId,
-        rememberMe
-      }));
-    } else {
-      localStorage.removeItem('studentCredentials');
-    }
-    
-    // Simulate authentication
-    setTimeout(() => {
-      // For demo purposes, accept any of these credential sets
-      if (
-        (formData.studentId === "123456" && formData.password === "password") ||
-        (formData.studentId === "student" && formData.password === "student") ||
-        (formData.studentId === "demo" && formData.password === "demo")
-      ) {
-        console.log("Login successful, navigating to student dashboard");
-        
-        // Set authentication flag
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userRole', 'student');
-        
-        // Navigate to dashboard
-        navigate('/dashboard/student');
-      } else {
-        console.log("Login failed, invalid credentials provided");
+    try {
+      // Call authentication service
+      const result = await authService.loginStudent(formData.universityId, formData.password);
+      // Store authentication data
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userRole', 'student');
+
+      
+      // Store token if available
+      if (result && result.token) {
+        localStorage.setItem('token', result.token);
+      }
+  
+      // If successful, navigate to student dashboard
+      navigate('/dashboard/student', { replace: true });
+    } catch (error) {
+      // Handle error responses
+      if (error.response?.status === 401) {
         setError("Invalid credentials. Please check your ID and password.");
+      } else if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else if (error.request) {
+        setError("No response from server. Please check your internet connection.");
+      } else {
+        setError("An error occurred. Please try again later.");
       }
       setIsSubmitting(false);
-    }, 800);
+    }
   };
 
   return (
@@ -207,21 +190,21 @@ import { useNavigate } from "react-router-dom";
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-5 w-full">
-            {/* Student ID Input */}
+            {/* University ID Input */}
             <div className={`relative transition-all duration-500 delay-700
               ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
             >
-              <label htmlFor="studentId" className="block text-sm font-medium text-gray-700 mb-1 ml-1">
-                Student ID
+              <label htmlFor="universityId" className="block text-sm font-medium text-gray-700 mb-1 ml-1">
+                University ID
               </label>
               <div className="relative">
                 <input
                   type="text"
-                  id="studentId"
-                  value={formData.studentId}
+                  id="universityId"
+                  value={formData.universityId}
                   onChange={handleInputChange}
-                  placeholder="Enter your student ID"
-                  className={`w-full py-3 px-4 pl-11 bg-gray-50 border ${error && !formData.studentId ? 'border-red-400' : 'border-gray-300'} 
+                  placeholder="Enter your university ID"
+                  className={`w-full py-3 px-4 pl-11 bg-gray-50 border ${error && !formData.universityId ? 'border-red-400' : 'border-gray-300'} 
                     rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent 
                     transition-all duration-300`}
                 />
@@ -246,7 +229,6 @@ import { useNavigate } from "react-router-dom";
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                   Password
                 </label>
-                
               </div>
               <div className="relative">
                 <input
@@ -289,22 +271,6 @@ import { useNavigate } from "react-router-dom";
               </div>
             </div>
 
-            {/* Remember Me Checkbox */}
-            <div className={`flex items-center transition-all duration-500 delay-900
-              ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
-            >
-              <input 
-                type="checkbox" 
-                id="remember-me"
-                checked={rememberMe}
-                onChange={() => setRememberMe(!rememberMe)}
-                className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                Remember me
-              </label>
-            </div>
-
             {/* Error Message */}
             <div className={`transition-all duration-300 h-6 ${error ? 'opacity-100' : 'opacity-0'}`}>
               {error && (
@@ -341,7 +307,6 @@ import { useNavigate } from "react-router-dom";
               )}
             </button>
           </form>
-
         </div>
       </div>
       

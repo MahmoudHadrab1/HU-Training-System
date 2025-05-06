@@ -172,13 +172,11 @@ const InternshipTable = ({ applications }) => {
         </p>
       )}
 
-      {/* Information message about sending to department head */}
-      {submittedApplicationId && (
-        <div className="mt-4 bg-blue-50 border-l-4 border-blue-500 p-4 text-blue-700">
-          <p className="font-medium">Note:</p>
-          <p>You can only send one approved internship to the department head for final approval.</p>
-        </div>
-      )}
+     {/* Information message about sending to department head - this is now shown always */}
+     <div className="mt-4 bg-blue-50 border-l-4 border-blue-500 p-4 text-blue-700">
+        <p className="font-medium">Note:</p>
+        <p>You can only send one approved internship to the department head for final approval.</p>
+      </div>
 
       {/* Confirmation Modal - Fixed position overlay */}
       {showConfirmationModal && (

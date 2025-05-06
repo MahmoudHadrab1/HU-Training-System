@@ -1,23 +1,19 @@
-// CompanyRegistration.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import authService from '../../../services/authService';
 
 const CompanyRegistration = () => {
   const navigate = useNavigate();
-  
+
   const [idNumber, setIdNumber] = useState('');
   const [showError, setShowError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('There is something error, Please try again');
+  const [errorMessage, setErrorMessage] = useState('');
   const [showVerifying, setShowVerifying] = useState(false);
   const [animateIn, setAnimateIn] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   useEffect(() => {
-    // Trigger entrance animation after component mounts
     setTimeout(() => setAnimateIn(true), 100);
-    
-    // Add demo ID hint for convenience
-    console.log("For testing: Use the demo ID '123456789'");
   }, []);
 
   const handleIdChange = (e) => {
@@ -25,52 +21,42 @@ const CompanyRegistration = () => {
     setShowError(false);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Basic validation
+
     if (!idNumber.trim()) {
       setErrorMessage('Please enter your ID number');
       setShowError(true);
       return;
     }
 
-    // Validate ID format (9 digits)
     if (!/^\d{9}$/.test(idNumber)) {
       setErrorMessage('ID must be 9 digits');
       setShowError(true);
       return;
     }
 
-    // Show verification modal
     setShowVerifying(true);
     setIsLoading(true);
-    
-    // Check for demo ID - in a real app you would verify with an API
-    if (idNumber === '123456789') {
-      // Demo ID always works
-      setTimeout(() => {
-        setShowVerifying(false);
-        setIsLoading(false);
+
+    try {
+      const result = await authService.verifyCompany(idNumber);
+      if (result.status === 'success') {
+        localStorage.setItem('companyNationalId', idNumber);
         navigate('/register/profile-creation');
-      }, 1500);
-    } else {
-      // For non-demo IDs, show error after verification attempt
-      setTimeout(() => {
-        setShowVerifying(false);
-        setIsLoading(false);
-        setErrorMessage('Company not verified. Please use the demo ID for testing.');
+      } else {
+        setErrorMessage('Company not verified.');
         setShowError(true);
-      }, 1500);
+      }
+    } catch (error) {
+      console.error('Verification failed:', error);
+      setErrorMessage('Error verifying company. Please try again later.');
+      setShowError(true);
+    } finally {
+      setShowVerifying(false);
+      setIsLoading(false);
     }
   };
-
-  // Helper function to fill with demo ID
-  const fillDemoId = () => {
-    setIdNumber('123456789');
-    setShowError(false);
-  };
-
   return (
     <div className={`flex min-h-screen bg-gray-50 transition-all duration-1000 ${animateIn ? 'opacity-100' : 'opacity-0'}`}>
       {/* Left side with image */}
@@ -127,15 +113,7 @@ const CompanyRegistration = () => {
             </button>
           </form>
           
-          {/* Helper button for demo ID - this would be removed in production */}
-          <div className="mt-4 text-center">
-            <button
-              onClick={fillDemoId}
-              className="text-xs text-gray-400 hover:text-gray-600 focus:outline-none"
-            >
-              Use demo ID (123456789)
-            </button>
-          </div>
+          
 
           {/* Back to Login button */}
           <div className="mt-8 text-center">

@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import authService from "../../../services/authService";
 
-export default function LoginPageDepartmentHead() {
+const DepartmentHeadLoginPage = () => {
   const navigate = useNavigate();
   
   // Animation and form states
   const [isLoaded, setIsLoaded] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   const [formData, setFormData] = useState({
-    departmentId: '',
+    email: '',
     password: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -19,19 +19,6 @@ export default function LoginPageDepartmentHead() {
     setTimeout(() => {
       setIsLoaded(true);
     }, 100);
-    
-    // Check for saved credentials
-    const savedCredentials = localStorage.getItem('departmentCredentials');
-    if (savedCredentials) {
-      try {
-        const { departmentId, rememberMe } = JSON.parse(savedCredentials);
-        setFormData(prev => ({ ...prev, departmentId }));
-        setRememberMe(rememberMe);
-      } catch (e) {
-        console.error("Error parsing saved credentials");
-        localStorage.removeItem('departmentCredentials');
-      }
-    }
   }, []);
 
   const handleInputChange = (e) => {
@@ -39,18 +26,26 @@ export default function LoginPageDepartmentHead() {
     setFormData(prev => ({
       ...prev,
       [id]: value
+      
     }));
     
     // Clear any error messages when user types
     if (error) setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Basic validation
-    if (!formData.departmentId.trim()) {
-      setError("Please enter your department ID");
+    if (!formData.email.trim()) {
+      setError("Please enter your email");
+      return;
+    }
+    
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError("Please enter a valid email address");
       return;
     }
     
@@ -60,36 +55,55 @@ export default function LoginPageDepartmentHead() {
     }
     
     setIsSubmitting(true);
-    
-    // Save credentials if "remember me" is checked
-    if (rememberMe) {
-      localStorage.setItem('departmentCredentials', JSON.stringify({
-        departmentId: formData.departmentId,
-        rememberMe
-      }));
-    } else {
-      localStorage.removeItem('departmentCredentials');
-    }
-    
-    // Simulate authentication (replace with actual API call)
-    setTimeout(() => {
-      // For demo purposes - always successful login with test credentials
-      if (formData.departmentId === "123456" && formData.password === "password") {
-        // Set authentication state
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('userRole', 'department');
-        
-        // Navigate to department head dashboard
-        navigate('/dashboard/department');
-      } else {
-        setError("Invalid credentials. Please check your ID and password.");
+    try {
+      const result = await authService.loginDepartmentHead(formData.email, formData.password);
+      console.log("Login successful, result:", result);
+  
+      // Store authentication data
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userRole', 'department');
+
+      
+      // Store token if available
+      if (result && result.token) {
+        localStorage.setItem('token', result.token);
       }
+  
+      // Redirect using React Router to the department dashboard
+      navigate('/dashboard/department', { replace: true });
+    } catch (error) {
+      if (error.response?.status === 401) {
+        setError("Invalid credentials. Please check your email and password.");
+      } else if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else if (error.request) {
+        setError("No response from server. Please check your internet connection.");
+      } else {
+        setError("An error occurred. Please try again later.");
+      }
+    } finally {
       setIsSubmitting(false);
-    }, 800);
+    }
   };
 
   return (
     <div className="flex h-screen w-full">
+      {/* Header/Navbar */}
+      <header className="absolute top-0 left-0 right-0 bg-white shadow-sm">
+        <div className="container mx-auto px-4 py-3 flex items-center">
+          <div className="text-xl font-medium">
+            <span className="text-red-600 font-bold">HU-</span> Tech Train
+          </div>
+          <div className="ml-auto flex space-x-8">
+            <a href="/" className="text-gray-700 hover:text-gray-900">Home</a>
+            <a href="/about" className="text-gray-700 hover:text-gray-900">About</a>
+            <a href="/login" className="text-red-600 font-medium">Login</a>
+            <a href="/company" className="text-gray-700 hover:text-gray-900">Company</a>
+            <a href="/student" className="text-gray-700 hover:text-gray-900">Student</a>
+          </div>
+        </div>
+      </header>
+      
       {/* Left Panel - Background Image & Info */}
       <div 
         className="hidden md:flex w-1/2 bg-cover bg-center relative"
@@ -142,43 +156,45 @@ export default function LoginPageDepartmentHead() {
       
       {/* Right Panel - Login Form */}
       <div className="w-full md:w-1/2 bg-white flex items-center justify-center p-6">
-        <div className={`max-w-md w-full transition-all duration-1000 ${isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-          {/* Header with Logo */}
-          <div className="text-center mb-10">
-            <div className="inline-flex items-center justify-center p-2 bg-gray-700 rounded-full h-20 w-20 mb-4">
-              <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"></path>
+        <div className="w-full max-w-md">
+          {/* Logo and Header */}
+          <div className="flex flex-col items-center mb-8">
+            <div className="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mb-4">
+              <svg className="w-12 h-12 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 14l9-5-9-5-9 5 9 5z" />
+                <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                <path strokeLinecap="round" strokeWidth="2" d="M12 14l9-5-9-5-9 5 9 5z" />
+                <path strokeLinecap="round" strokeWidth="2" d="M3 9l9 3m0 0l9-3m-9 3v11" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-800">HU-Tech Train</h2>
-            <p className="text-gray-600">Department Portal</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">HU-Tech Train</h2>
+            <p className="text-gray-600 mb-8">Department Portal</p>
           </div>
           
           {/* Login Form */}
-          <form onSubmit={handleSubmit}>
-            <div className="mb-6">
-              <label htmlFor="departmentId" className="block text-gray-700 mb-2">Department ID</label>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-gray-700 mb-2">Department Email</label>
               <div className="relative">
                 <input
-                  type="text"
-                  id="departmentId"
-                  value={formData.departmentId}
+                  type="email"
+                  id="email"
+                  value={formData.email}
                   onChange={handleInputChange}
-                  placeholder="Enter your department ID"
-                  className="w-full py-3 px-4 bg-gray-50 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter your department email"
+                  className="w-full py-3 px-4 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <div className="absolute inset-y-0 right-4 flex items-center">
-                  <svg className="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"></path>
+                <div className="absolute inset-y-0 right-3 flex items-center">
+                  <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                   </svg>
                 </div>
               </div>
             </div>
             
-            <div className="mb-6">
-              <div className="flex justify-between mb-2">
-                <label htmlFor="password" className="block text-gray-700">Password</label>
-              </div>
+            <div>
+              <label htmlFor="password" className="block text-gray-700 mb-2">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -186,51 +202,44 @@ export default function LoginPageDepartmentHead() {
                   value={formData.password}
                   onChange={handleInputChange}
                   placeholder="Enter your password"
-                  className="w-full py-3 px-4 bg-gray-50 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full py-3 px-4 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <div 
-                  className="absolute inset-y-0 right-4 flex items-center cursor-pointer"
+                  className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  <svg className="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     {showPassword ? (
-                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     ) : null}
-                    <path fillRule="evenodd" d={showPassword 
-                      ? "M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                      : "M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
-                    } clipRule="evenodd"></path>
-                    {!showPassword ? (
-                      <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z"></path>
-                    ) : null}
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={showPassword 
+                      ? "M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                      : "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                    } />
                   </svg>
                 </div>
               </div>
-              
-              {/* Error message */}
-              {error && (
-                <p className="mt-2 text-sm text-red-600 animate-pulse">
-                  {error}
-                </p>
-              )}
             </div>
             
-            <div className="flex items-center mb-6">
-              <input 
-                type="checkbox" 
-                id="remember" 
-                checked={rememberMe}
-                onChange={() => setRememberMe(!rememberMe)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
-                Remember me
-              </label>
-            </div>
+            {/* Error message */}
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 mt-2">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-red-700">{error}</p>
+                  </div>
+                </div>
+              </div>
+            )}
             
             <button
               type="submit"
-              className="w-full flex items-center justify-center py-3 px-4 bg-gray-800 text-white font-medium rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors group"
+              className="w-full flex items-center justify-center py-3 px-4 bg-gray-800 text-white font-medium rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors group mt-6"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
@@ -241,17 +250,17 @@ export default function LoginPageDepartmentHead() {
               ) : (
                 <>
                   Log In
-                  <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                  <svg className="w-5 h-5 ml-2 transform transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>
                 </>
               )}
             </button>
           </form>
-          
-          
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default DepartmentHeadLoginPage;
